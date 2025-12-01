@@ -1,41 +1,100 @@
 #include <SDL3/SDL.h>
+#include <stdbool.h>
 
-int main(int argc, char** argv)
-{
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-
-    SDL_SetAppMetadata("SDL Test", "1.0", "games.anakata.test-sdl");
-    if (!SDL_Init(SDL_INIT_VIDEO))
+int main(int argc, char* argv[]) {
+    // Initialisation de SDL3
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        SDL_Log("Erreur SDL_Init: %s", SDL_GetError());
         return 1;
+    }
 
-    if (!SDL_CreateWindowAndRenderer("HELLO SDL", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer))
+    // Création de la fenêtre
+    SDL_Window* window = SDL_CreateWindow(
+        "Déplacement SDL3",
+        800, 600,
+        SDL_WINDOW_RESIZABLE
+    );
+    if (!window) {
+        SDL_Log("Erreur création fenêtre: %s", SDL_GetError());
+        SDL_Quit();
         return 1;
+    }
 
-    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    // Création du renderer
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+    if (!renderer) {
+        SDL_Log("Erreur création renderer: %s", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
-    bool keepGoing = true;
-    do
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_EVENT_QUIT)
-                keepGoing = false;
+    // Position et taille de l'élément
+    SDL_FRect rect = { 400.0f, 300.0f, 50.0f, 50.0f };
+
+    // Vitesse de déplacement
+    float speed = 200.0f; // pixels par seconde
+
+    // Boucle principale
+    bool running = true;
+    SDL_Event event;
+    Uint64 last_time = SDL_GetTicks();
+
+    while (running) {
+        // Calcul du delta time
+        Uint64 current_time = SDL_GetTicks();
+        float dt = (current_time - last_time) / 1000.0f;
+        last_time = current_time;
+
+        // Gestion des événements
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;
+            }
         }
 
-        const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
+        // Gestion du clavier (état continu)
+        const bool* keys = SDL_GetKeyboardState(NULL);
+        
+        if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
+            rect.y -= speed * dt;
+        }
+        if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) {
+            rect.y += speed * dt;
+        }
+        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
+            rect.x -= speed * dt;
+        }
+        if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) {
+            rect.x += speed * dt;
+        }
 
-        const float red = (float)(0.5 + 0.5 * SDL_sin(now));
-        const float green = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
-        const float blue = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
-        SDL_SetRenderDrawColorFloat(renderer, red, green, blue, 1.0f);
+        // Limiter l'élément à l'écran
+        if (rect.x < 0) rect.x = 0;
+        if (rect.y < 0) rect.y = 0;
+        if (rect.x + rect.w > 800) rect.x = 800 - rect.w;
+        if (rect.y + rect.h > 600) rect.y = 600 - rect.h;
 
+        // Rendu
+        // Effacer l'écran (noir)
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-    } while (keepGoing);
 
+        // Dessiner le rectangle (vert)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &rect);
+
+        // Afficher
+        SDL_RenderPresent(renderer);
+
+        // Limiter à ~60 FPS
+        SDL_Delay(16);
+    }
+
+    // Nettoyage
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SDL_Quit();
+
     return 0;
 }
