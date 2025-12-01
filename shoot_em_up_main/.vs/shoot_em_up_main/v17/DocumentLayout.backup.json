@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\shoot_em_up_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|solutionrelative:shoot_em_up_main\\shoot_em_up_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "shoot_em_up_main.cpp",
+              "DocumentMoniker": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\shoot_em_up_main.cpp",
+              "RelativeDocumentMoniker": "shoot_em_up_main\\shoot_em_up_main.cpp",
+              "ToolTip": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\shoot_em_up_main.cpp",
+              "RelativeToolTip": "shoot_em_up_main\\shoot_em_up_main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-01T08:14:56.948Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
