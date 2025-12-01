@@ -5,7 +5,7 @@
 #include <SDL3/SDL3.h>
 #include <SDL3/SDL3_image.h>
 
-int main()
+int main(int argc, char** argv)
 {
     std::cout << "Hello World!\n";
-}
+} 
