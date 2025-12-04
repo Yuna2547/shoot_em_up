@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/shoot_em_up_main/.vs
+/shoot_em_up_main/x64
+/shoot_em_up_main/shoot_em_up_main/x64
+
