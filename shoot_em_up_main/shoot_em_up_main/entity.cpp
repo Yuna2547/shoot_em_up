@@ -1,6 +1,7 @@
 #include "entity.h"
+#include "sprite.h"   // make sure the header name matches your actual file
 
-void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed) {
+void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed, SDL_Renderer* renderer) {
     entity->rect.x = x;
     entity->rect.y = y;
     entity->rect.w = w;
@@ -8,6 +9,9 @@ void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed
     entity->speed = speed;
     entity->screen_width = 800;
     entity->screen_height = 600;
+
+    // Load your PNG sprite instead of BMP
+    entity->sprite = Sprite_Load(renderer, "player.png");
 }
 
 void Entity_Update(Entity* entity, const bool* keys, float dt) {
@@ -38,12 +42,20 @@ void Entity_Update(Entity* entity, const bool* keys, float dt) {
         entity->rect.y = entity->screen_height - entity->rect.h;
 }
 
+void Entity_Draw(Entity* entity, SDL_Renderer* renderer) {
+    if (entity->sprite) {
+        Sprite_Draw(entity->sprite, renderer, &entity->rect);
+    }
+}
+
 void Entity_SetScreenBounds(Entity* entity, int width, int height) {
     entity->screen_width = width;
     entity->screen_height = height;
 }
 
-void Entity_Draw(Entity* entity, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderFillRect(renderer, &entity->rect);
+void Entity_Destroy(Entity* entity) {
+    if (entity->sprite) {
+        Sprite_Destroy(entity->sprite);
+        entity->sprite = NULL;
+    }
 }
