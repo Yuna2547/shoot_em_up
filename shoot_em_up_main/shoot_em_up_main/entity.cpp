@@ -11,7 +11,7 @@ void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed
 }
 
 void Entity_Update(Entity* entity, const bool* keys, float dt) {
-    // Déplacement vertical
+    // Vertical controls
     if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
         entity->rect.y -= entity->speed * dt;
     }
@@ -19,7 +19,7 @@ void Entity_Update(Entity* entity, const bool* keys, float dt) {
         entity->rect.y += entity->speed * dt;
     }
 
-    // Déplacement horizontal
+    // Horizontal controls
     if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
         entity->rect.x -= entity->speed * dt;
     }
@@ -27,7 +27,7 @@ void Entity_Update(Entity* entity, const bool* keys, float dt) {
         entity->rect.x += entity->speed * dt;
     }
 
-    // Limiter à l'écran
+    // Screen's limits
     if (entity->rect.x < 0)
         entity->rect.x = 0;
     if (entity->rect.y < 0)

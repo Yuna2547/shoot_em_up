@@ -11,16 +11,16 @@ typedef struct {
     int screen_height;
 } Entity;
 
-// Initialise une entité
+// Entities' creation
 void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed);
 
-// Met à jour la position selon les touches pressées
+// Update position 
 void Entity_Update(Entity* entity, const bool* keys, float dt);
 
-// Définit les limites de l'écran
+// Define screen's limits
 void Entity_SetScreenBounds(Entity* entity, int width, int height);
 
-// Dessine l'entité
+// Draw entity
 void Entity_Draw(Entity* entity, SDL_Renderer* renderer);
 
 #endif // ENTITY_H
