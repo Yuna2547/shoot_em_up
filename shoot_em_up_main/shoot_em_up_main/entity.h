@@ -1,6 +1,4 @@
 #pragma once
-#ifndef ENTITY_H
-#define ENTITY_H
 
 #include <SDL3/SDL.h>
 
@@ -23,5 +21,4 @@ void Entity_SetScreenBounds(Entity* entity, int width, int height);
 // Draw entity
 void Entity_Draw(Entity* entity, SDL_Renderer* renderer);
 
-#endif // ENTITY_H
 
