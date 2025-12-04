@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
+#include "entity.h"
 
 int main(int argc, char* argv[]) {
     // Initialisation de SDL3
@@ -10,7 +11,7 @@ int main(int argc, char* argv[]) {
 
     // Création de la fenêtre
     SDL_Window* window = SDL_CreateWindow(
-        "Déplacement SDL3",
+        "Déplacement SDL3 - Modulaire",
         800, 600,
         SDL_WINDOW_RESIZABLE
     );
@@ -29,11 +30,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Position et taille de l'élément
-    SDL_FRect rect = { 400.0f, 300.0f, 50.0f, 50.0f };
-
-    // Vitesse de déplacement
-    float speed = 200.0f; // pixels par seconde
+    // Création de l'entité
+    Entity player;
+    Entity_Init(&player, 400.0f, 300.0f, 50.0f, 50.0f, 200.0f);
 
     // Boucle principale
     bool running = true;
@@ -53,38 +52,16 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // Gestion du clavier (état continu)
+        // Mise à jour de l'entité
         const bool* keys = SDL_GetKeyboardState(NULL);
-        
-        if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
-            rect.y -= speed * dt;
-        }
-        if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) {
-            rect.y += speed * dt;
-        }
-        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
-            rect.x -= speed * dt;
-        }
-        if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) {
-            rect.x += speed * dt;
-        }
-
-        // Limiter l'élément à l'écran
-        if (rect.x < 0) rect.x = 0;
-        if (rect.y < 0) rect.y = 0;
-        if (rect.x + rect.w > 800) rect.x = 800 - rect.w;
-        if (rect.y + rect.h > 600) rect.y = 600 - rect.h;
+        Entity_Update(&player, keys, dt);
 
         // Rendu
-        // Effacer l'écran (noir)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Dessiner le rectangle (vert)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &rect);
+        Entity_Draw(&player, renderer);
 
-        // Afficher
         SDL_RenderPresent(renderer);
 
         // Limiter à ~60 FPS

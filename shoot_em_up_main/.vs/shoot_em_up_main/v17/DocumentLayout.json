@@ -5,6 +5,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\shoot_em_up_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|solutionrelative:shoot_em_up_main\\shoot_em_up_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|solutionrelative:shoot_em_up_main\\entity.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B534240D-94A7-4B34-A6E3-A6843EA06CB0}|shoot_em_up_main\\shoot_em_up_main.vcxproj|solutionrelative:shoot_em_up_main\\entity.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +22,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "entity.cpp",
+              "DocumentMoniker": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.cpp",
+              "RelativeDocumentMoniker": "shoot_em_up_main\\entity.cpp",
+              "ToolTip": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.cpp",
+              "RelativeToolTip": "shoot_em_up_main\\entity.cpp",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAADEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-04T08:31:00.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "entity.h",
+              "DocumentMoniker": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.h",
+              "RelativeDocumentMoniker": "shoot_em_up_main\\entity.h",
+              "ToolTip": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\entity.h",
+              "RelativeToolTip": "shoot_em_up_main\\entity.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-04T08:30:54.549Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +58,7 @@
               "RelativeDocumentMoniker": "shoot_em_up_main\\shoot_em_up_main.cpp",
               "ToolTip": "C:\\Users\\lharispe\\Documents\\GitHub\\shoot_em_up\\shoot_em_up_main\\shoot_em_up_main\\shoot_em_up_main.cpp",
               "RelativeToolTip": "shoot_em_up_main\\shoot_em_up_main.cpp",
-              "ViewState": "AgIAABkAAAAAAAAAAAAqwCUAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-01T08:14:56.948Z",
               "EditorCaption": ""
