@@ -16,10 +16,15 @@ typedef struct {
 typedef struct {
     Bullet bullets[MAX_BULLETS];
     int count;
+    float shoot_cooldown;
+    float cooldown_timer;
 } BulletManager;
 
 // Initialize bullet manager
 void BulletManager_Init(BulletManager* manager, float cooldown);
+
+// Update cooldown timer
+void BulletManager_Update(BulletManager* manager, float dt);
 
 // Attempt to shoot a bullet
 void BulletManager_Shoot(BulletManager* manager, float x, float y);

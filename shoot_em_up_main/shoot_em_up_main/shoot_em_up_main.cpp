@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 
     // bullet manager creation (0.5 second cooldown)
     BulletManager bulletManager;
-    BulletManager_Init(&bulletManager, 0.5f);
+    BulletManager_Init(&bulletManager, 0.1f);
 
     // main loop
     bool running = true;
@@ -60,6 +60,9 @@ int main(int argc, char* argv[]) {
         // Update entity
         const bool* keys = SDL_GetKeyboardState(NULL);
         Entity_Update(&player, keys, dt);
+
+        // Update bullet manager cooldown
+        BulletManager_Update(&bulletManager, dt);
 
         // Shoot when space is pressed
         if (keys[SDL_SCANCODE_SPACE]) {
