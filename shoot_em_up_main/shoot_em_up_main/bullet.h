@@ -1,6 +1,5 @@
 #pragma once
-#ifndef BULLET_H
-#define BULLET_H
+
 
 #include <SDL3/SDL.h>
 #include <stdbool.h>
@@ -30,4 +29,3 @@ void BulletManager_UpdateBullets(BulletManager* manager, float dt, int screen_he
 // Draw all active bullets
 void BulletManager_Draw(BulletManager* manager, SDL_Renderer* renderer);
 
-#endif // BULLET_H

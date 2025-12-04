@@ -1,6 +1,4 @@
 #pragma once
-#ifndef ENTITY_H
-#define ENTITY_H
 
 #include <SDL3/SDL.h>
 #include "Sprite.h"
@@ -30,5 +28,5 @@ void Entity_Draw(Entity* entity, SDL_Renderer* renderer);
 // Draw Destroy
 void Entity_Destroy(Entity* entity);
 
-#endif // ENTITY_H
+
 

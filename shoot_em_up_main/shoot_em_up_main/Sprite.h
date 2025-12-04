@@ -1,5 +1,4 @@
-#ifndef SPRITE_H
-#define SPRITE_H
+#pragma once
 
 #include <SDL3/SDL.h>
 
@@ -13,4 +12,4 @@ Sprite* Sprite_Load(SDL_Renderer* renderer, const char* path);
 void Sprite_Destroy(Sprite* sprite);
 void Sprite_Draw(Sprite* sprite, SDL_Renderer* renderer, SDL_FRect* dstRect);
 
-#endif
+
