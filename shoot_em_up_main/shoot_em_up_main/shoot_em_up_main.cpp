@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include "entity.h"
+#include "bullet.h"
 
 int main(int argc, char* argv[]) {
     // sdl3 initialisation
@@ -34,6 +35,10 @@ int main(int argc, char* argv[]) {
     Entity player;
     Entity_Init(&player, 400.0f, 300.0f, 50.0f, 50.0f, 200.0f);
 
+    // bullet manager creation (0.5 second cooldown)
+    BulletManager bulletManager;
+    BulletManager_Init(&bulletManager, 0.5f);
+
     // main loop
     bool running = true;
     SDL_Event event;
@@ -56,10 +61,26 @@ int main(int argc, char* argv[]) {
         const bool* keys = SDL_GetKeyboardState(NULL);
         Entity_Update(&player, keys, dt);
 
+        // Shoot when space is pressed
+        if (keys[SDL_SCANCODE_SPACE]) {
+            // Calculate bullet starting position (center top of player)
+            float bullet_x = player.rect.x + (player.rect.w / 2.0f) - 2.5f;
+            float bullet_y = player.rect.y;
+            BulletManager_Shoot(&bulletManager, bullet_x, bullet_y);
+        }
+
+        // Update all bullets
+        BulletManager_UpdateBullets(&bulletManager, dt, 600);
+
+        // Clear screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        // Draw player
         Entity_Draw(&player, renderer);
+
+        // Draw bullets
+        BulletManager_Draw(&bulletManager, renderer);
 
         SDL_RenderPresent(renderer);
 
