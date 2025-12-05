@@ -9,15 +9,12 @@ Entity::Entity(float x, float y, float w, float h, float speed)
 }
 
 void Entity::update(const bool* keys, float dt) {
-    // Vertical controls
     if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
         rect.y -= speed * dt;
     }
     if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) {
         rect.y += speed * dt;
     }
-
-    // Horizontal controls
     if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
         rect.x -= speed * dt;
     }
