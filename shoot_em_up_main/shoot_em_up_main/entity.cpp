@@ -1,49 +1,43 @@
 #include "entity.h"
 
-void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed) {
-    entity->rect.x = x;
-    entity->rect.y = y;
-    entity->rect.w = w;
-    entity->rect.h = h;
-    entity->speed = speed;
-    entity->screen_width = 800;
-    entity->screen_height = 600;
+Entity::Entity(float x, float y, float w, float h, float speed)
+    : speed(speed), screen_width(800), screen_height(600) {
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
 }
 
-void Entity_Update(Entity* entity, const bool* keys, float dt) {
+void Entity::update(const bool* keys, float dt) {
     // Vertical controls
     if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
-        entity->rect.y -= entity->speed * dt;
+        rect.y -= speed * dt;
     }
     if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) {
-        entity->rect.y += entity->speed * dt;
+        rect.y += speed * dt;
     }
 
     // Horizontal controls
     if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
-        entity->rect.x -= entity->speed * dt;
+        rect.x -= speed * dt;
     }
     if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) {
-        entity->rect.x += entity->speed * dt;
+        rect.x += speed * dt;
     }
 
-    // Screen's limits
-    if (entity->rect.x < 0)
-        entity->rect.x = 0;
-    if (entity->rect.y < 0)
-        entity->rect.y = 0;
-    if (entity->rect.x + entity->rect.w > entity->screen_width)
-        entity->rect.x = entity->screen_width - entity->rect.w;
-    if (entity->rect.y + entity->rect.h > entity->screen_height)
-        entity->rect.y = entity->screen_height - entity->rect.h;
+    // Screen limits
+    if (rect.x < 0) rect.x = 0;
+    if (rect.y < 0) rect.y = 0;
+    if (rect.x + rect.w > screen_width) rect.x = screen_width - rect.w;
+    if (rect.y + rect.h > screen_height) rect.y = screen_height - rect.h;
 }
 
-void Entity_SetScreenBounds(Entity* entity, int width, int height) {
-    entity->screen_width = width;
-    entity->screen_height = height;
+void Entity::setScreenBounds(int width, int height) {
+    screen_width = width;
+    screen_height = height;
 }
 
-void Entity_Draw(Entity* entity, SDL_Renderer* renderer) {
+void Entity::draw(SDL_Renderer* renderer) const {
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderFillRect(renderer, &entity->rect);
+    SDL_RenderFillRect(renderer, &rect);
 }
