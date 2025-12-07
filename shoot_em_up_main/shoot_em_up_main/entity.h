@@ -25,3 +25,7 @@ public:
     // Accessors
     const SDL_FRect& getRect() const { return rect; }
 };
+
+
+
+

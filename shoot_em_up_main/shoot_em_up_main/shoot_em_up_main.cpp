@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include "entity.h"
 #include "bullet.h"
+#include "enemy.h"
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -8,7 +9,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Controls", 800, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 800, 600, SDL_WINDOW_RESIZABLE);
     if (!window) {
         SDL_Log("Error creating window: %s", SDL_GetError());
         SDL_Quit();
@@ -23,11 +24,15 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Player entity (now a class)
-    Entity player(400.0f, 300.0f, 50.0f, 50.0f, 200.0f);
+    // Player entity
+    Entity player(400.0f, 500.0f, 50.0f, 50.0f, 200.0f);
 
-    // Bullet manager (already a class)
+    // Bullet manager
     BulletManager bulletManager(100, 0.1f);
+
+    // Enemy manager with scrolling spawn
+    EnemyManager enemyManager;
+    enemyManager.setupEnemies();
 
     bool running = true;
     SDL_Event event;
@@ -41,6 +46,12 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
+            }
+            // Press R to reset enemies
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                if (event.key.key == SDLK_R) {
+                    enemyManager.reset();
+                }
             }
         }
 
@@ -56,10 +67,12 @@ int main(int argc, char* argv[]) {
         }
 
         bulletManager.updateBullets(dt, 600);
+        enemyManager.update(dt);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        enemyManager.draw(renderer);
         player.draw(renderer);
         bulletManager.draw(renderer);
 
