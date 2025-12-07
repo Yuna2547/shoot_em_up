@@ -2,7 +2,7 @@
 
 // ---------------- Enemy ----------------
 Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type)
-    : target_y(target_y), speed(speed), type(type), in_position(false) {
+    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false) {
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
@@ -12,7 +12,6 @@ Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float spe
 void Enemy::update(float dt) {
     if (!in_position) {
         rect.y += speed * dt;
-
     }
 }
 

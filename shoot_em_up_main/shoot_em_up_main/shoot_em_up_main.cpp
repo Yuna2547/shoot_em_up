@@ -3,6 +3,14 @@
 #include "bullet.h"
 #include "enemy.h"
 
+// Collision detection helper
+bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) {
+    return (a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y);
+}
+
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Error SDL_Init: %s", SDL_GetError());
@@ -68,6 +76,21 @@ int main(int argc, char* argv[]) {
 
         bulletManager.updateBullets(dt, 600);
         enemyManager.update(dt);
+
+        // Check collision between player and enemies
+        const SDL_FRect& playerRect = player.getRect();
+        for (auto& enemy : enemyManager.getEnemies()) {
+            if (!enemy.hasCollided() && checkCollision(playerRect, enemy.getRect())) {
+                player.takeDamage(1);
+                enemy.setCollided();
+            }
+        }
+
+        // Check if player is dead
+        if (player.getHealth() <= 0) {
+            SDL_Log("Game Over! Press R to restart.");
+            // You can add game over logic here
+        }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);

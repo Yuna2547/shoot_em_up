@@ -1,7 +1,8 @@
 #include "entity.h"
 
 Entity::Entity(float x, float y, float w, float h, float speed)
-    : speed(speed), screen_width(800), screen_height(600) {
+    : speed(speed), screen_width(800), screen_height(600),
+    health(10), max_health(10), invulnerable_timer(0.0f) {
     rect.x = x;
     rect.y = y;
     rect.w = w;
@@ -27,6 +28,14 @@ void Entity::update(const bool* keys, float dt) {
     if (rect.y < 0) rect.y = 0;
     if (rect.x + rect.w > screen_width) rect.x = screen_width - rect.w;
     if (rect.y + rect.h > screen_height) rect.y = screen_height - rect.h;
+
+    // Update invulnerability timer
+    if (invulnerable_timer > 0.0f) {
+        invulnerable_timer -= dt;
+        if (invulnerable_timer < 0.0f) {
+            invulnerable_timer = 0.0f;
+        }
+    }
 }
 
 void Entity::setScreenBounds(int width, int height) {
@@ -35,6 +44,43 @@ void Entity::setScreenBounds(int width, int height) {
 }
 
 void Entity::draw(SDL_Renderer* renderer) const {
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    // Flash white when invulnerable
+    if (isInvulnerable() && (int)(invulnerable_timer * 10) % 2 == 0) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    }
+    else {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    }
     SDL_RenderFillRect(renderer, &rect);
+
+    // Draw health bar below the entity
+    float bar_width = rect.w;
+    float bar_height = 8.0f;
+    float bar_x = rect.x;
+    float bar_y = rect.y + rect.h + 5.0f;
+
+    // Background (red)
+    SDL_FRect bg_rect = { bar_x, bar_y, bar_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &bg_rect);
+
+    // Health (green)
+    float health_width = (bar_width * health) / max_health;
+    SDL_FRect health_rect = { bar_x, bar_y, health_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &health_rect);
+
+    // Border (white)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderRect(renderer, &bg_rect);
+}
+
+void Entity::takeDamage(int amount) {
+    if (!isInvulnerable()) {
+        health -= amount;
+        if (health < 0) health = 0;
+
+        // Set invulnerability period (1 second)
+        invulnerable_timer = 1.0f;
+    }
 }

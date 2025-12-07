@@ -8,6 +8,9 @@ private:
     float speed;
     int screen_width;
     int screen_height;
+    int health;
+    int max_health;
+    float invulnerable_timer;
 
 public:
     // Constructor
@@ -19,13 +22,15 @@ public:
     // Set screen bounds
     void setScreenBounds(int width, int height);
 
-    // Draw entity
+    // Draw entity and health bar
     void draw(SDL_Renderer* renderer) const;
+
+    // Health management
+    void takeDamage(int amount);
+    int getHealth() const { return health; }
+    int getMaxHealth() const { return max_health; }
+    bool isInvulnerable() const { return invulnerable_timer > 0.0f; }
 
     // Accessors
     const SDL_FRect& getRect() const { return rect; }
 };
-
-
-
-
