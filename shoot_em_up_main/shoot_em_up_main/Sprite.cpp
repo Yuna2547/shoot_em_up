@@ -1,51 +1,46 @@
-#include "sprite.h"
+#include "Sprite.h"
 #include <stdlib.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
-Sprite* Sprite_Load(SDL_Renderer* renderer, const char* path) {
-    // Load PNG (or other formats supported by SDL_image)
-    SDL_Surface* surface = IMG_Load(path);
-    if (!surface) {
-        SDL_Log("Error loading image %s: %s", path, SDL_GetError());
-        return NULL;
-    }
+Sprite::Sprite(SDL_Renderer* renderer, const char* path)
+ : texture(nullptr), width(0), height(0)
+{
+ if (!renderer || !path) return;
 
-    Sprite* sprite = (Sprite*)malloc(sizeof(Sprite));
-    if (!sprite) {
-        SDL_Log("Error allocating memory for sprite");
-        SDL_DestroySurface(surface);
-        return NULL;
-    }
+ SDL_Surface* surface = IMG_Load(path);
+ if (!surface) {
+ SDL_Log("Error loading image %s: %s", path, SDL_GetError());
+ return;
+ }
 
-    sprite->texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!sprite->texture) {
-        SDL_Log("Error creating texture from %s: %s", path, SDL_GetError());
-        SDL_DestroySurface(surface);
-        free(sprite);
-        return NULL;
-    }
+ texture = SDL_CreateTextureFromSurface(renderer, surface);
+ if (!texture) {
+ SDL_Log("Error creating texture from %s: %s", path, SDL_GetError());
+ SDL_DestroySurface(surface);
+ texture = nullptr;
+ return;
+ }
 
-    // Keep pixel art crisp when scaled
-    SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
+ // Keep pixel art crisp when scaled
+ SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
-    sprite->width = surface->w;
-    sprite->height = surface->h;
+ width = surface->w;
+ height = surface->h;
 
-    SDL_DestroySurface(surface);
-    return sprite;
+ SDL_DestroySurface(surface);
 }
 
-void Sprite_Destroy(Sprite* sprite) {
-    if (sprite) {
-        if (sprite->texture) {
-            SDL_DestroyTexture(sprite->texture);
-        }
-        free(sprite);
-    }
+Sprite::~Sprite() {
+ if (texture) SDL_DestroyTexture(texture);
 }
 
-void Sprite_Draw(Sprite* sprite, SDL_Renderer* renderer, SDL_FRect* dstRect) {
-    if (sprite && sprite->texture) {
-        SDL_RenderTexture(renderer, sprite->texture, NULL, dstRect);
-    }
+bool Sprite::IsValid() const { return texture != nullptr; }
+int Sprite::GetWidth() const { return width; }
+int Sprite::GetHeight() const { return height; }
+
+void Sprite::Draw(SDL_Renderer* renderer, SDL_FRect* dstRect) {
+ if (!renderer || !texture || !dstRect) return;
+ SDL_RenderTexture(renderer, texture, NULL, dstRect);
 }

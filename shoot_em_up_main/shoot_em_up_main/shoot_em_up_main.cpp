@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 	// Window creation
 	SDL_Window* window = SDL_CreateWindow(
 		"Controls",
-		0, 0,
+		0,0,
 		SDL_WINDOW_FULLSCREEN
 	);
 	if (!window) {
@@ -33,20 +33,32 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Query actual screen size
-	int screen_w = 0, screen_h = 0;
+	int screen_w =0, screen_h =0;
 	SDL_GetWindowSize(window, &screen_w, &screen_h);
 
-	// Entity creation (centered in screen)
-	Entity player;
-	Entity_Init(&player,
-		screen_w / 2.0f, screen_h / 2.0f,
-		100.0f, 100.0f,   // sprite draw size
-		200.0f,           // movement speed
+	// Load background safely (expects a PNG at assets/background.png)
+	SDL_Texture* bg_texture = NULL;
+	SDL_Surface* bg_surface = IMG_Load("assets/background.png");
+	if (bg_surface) {
+		bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
+		SDL_DestroySurface(bg_surface);
+		if (!bg_texture) {
+			SDL_Log("Warning: could not create background texture: %s", SDL_GetError());
+		}
+	} else {
+		SDL_Log("Warning: could not load background image: %s", SDL_GetError());
+	}
+
+	// Entity creation (centered in screen) using C++ class
+	Entity player(screen_w /2.0f, screen_h /2.0f,
+		100.0f,100.0f, // sprite draw size
+		200.0f, // movement speed
 		renderer);
-	Entity_SetScreenBounds(&player, screen_w, screen_h);
+	player.SetScreenBounds(screen_w, screen_h);
+
 	// bullet manager creation (0.5 second cooldown)
 	BulletManager bulletManager;
-	BulletManager_Init(&bulletManager, 0.1f);
+	BulletManager_Init(&bulletManager,0.1f);
 
 	// main loop
 	bool running = true;
@@ -56,7 +68,7 @@ int main(int argc, char* argv[]) {
 	while (running) {
 		// Delta time
 		Uint64 current_time = SDL_GetTicks();
-		float dt = (current_time - last_time) / 1000.0f;
+		float dt = (current_time - last_time) /1000.0f;
 		last_time = current_time;
 
 		// Event handling
@@ -68,7 +80,7 @@ int main(int argc, char* argv[]) {
 
 		// Update entity
 		const bool* keys = SDL_GetKeyboardState(NULL);
-		Entity_Update(&player, keys, dt);
+		player.Update(keys, dt);
 
 		// Update bullet manager cooldown
 		BulletManager_Update(&bulletManager, dt);
@@ -76,39 +88,42 @@ int main(int argc, char* argv[]) {
 		// Shoot when space is pressed
 		if (keys[SDL_SCANCODE_SPACE]) {
 			// Calculate bullet starting position (center top of player)
-			float bullet_x = player.rect.x + (player.rect.w / 2.0f) - 2.5f;
+			float bullet_x = player.rect.x + (player.rect.w /2.0f) -2.5f;
 			float bullet_y = player.rect.y;
 			BulletManager_Shoot(&bulletManager, bullet_x, bullet_y);
 		}
 
-		// Inside your main loop, each frame:
-		const bool* key = SDL_GetKeyboardState(NULL);
-		if (key[SDL_SCANCODE_ESCAPE]) {
+		if (keys[SDL_SCANCODE_ESCAPE]) {
 			running = false;
 		}
 
-
 		// Update all bullets
-		BulletManager_UpdateBullets(&bulletManager, dt, 600);
+		BulletManager_UpdateBullets(&bulletManager, dt,600);
 
 		// Clear screen
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_SetRenderDrawColor(renderer,0,0,0,255);
 		SDL_RenderClear(renderer);
 
+		// Draw background
+		if (bg_texture) {
+			SDL_RenderTexture(renderer, bg_texture, NULL, NULL);
+		}
+
 		// Draw player
-		Entity_Draw(&player, renderer);
+		player.Draw(renderer);
 
 		// Draw bullets
 		BulletManager_Draw(&bulletManager, renderer);
 
 		SDL_RenderPresent(renderer);
 
-		// 60 fps limit
+		//60 fps limit
 		SDL_Delay(16);
 	}
 
 	// Cleanup
-	Entity_Destroy(&player);
+	if (bg_texture) SDL_DestroyTexture(bg_texture);
+	// player destructor will run automatically
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

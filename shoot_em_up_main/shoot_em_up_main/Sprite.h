@@ -2,14 +2,23 @@
 
 #include <SDL3/SDL.h>
 
-typedef struct {
+class Sprite {
+  public:
+    // Loads the image at construction. If loading fails, IsValid() will be false.
+    Sprite(SDL_Renderer* renderer, const char* path);
+    ~Sprite();
+
+    bool IsValid() const;
+    int GetWidth() const;
+    int GetHeight() const;
+
+    // Draw the sprite to renderer at the destination rectangle (float rect in SDL3)
+    void Draw(SDL_Renderer* renderer, SDL_FRect* dstRect);
+
+  private:
     SDL_Texture* texture;
     int width;
     int height;
-} Sprite;
-
-Sprite* Sprite_Load(SDL_Renderer* renderer, const char* path);
-void Sprite_Destroy(Sprite* sprite);
-void Sprite_Draw(Sprite* sprite, SDL_Renderer* renderer, SDL_FRect* dstRect);
+};
 
 

@@ -3,30 +3,26 @@
 #include <SDL3/SDL.h>
 #include "Sprite.h"
 
-
-typedef struct {
+class Entity {
+public:
+    // Keep these public so existing code that accesses player.rect etc. continues to work
     SDL_FRect rect;
     float speed;
     int screen_width;
     int screen_height;
     Sprite* sprite;
 
-} Entity;
+    // Constructors / destructor
+    Entity();
+    Entity(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
+    ~Entity();
 
-// Entities' creation
-void Entity_Init(Entity* entity, float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
-
-// Update position 
-void Entity_Update(Entity* entity, const bool* keys, float dt);
-
-// Define screen's limits
-void Entity_SetScreenBounds(Entity* entity, int width, int height);
-
-// Draw entity
-void Entity_Draw(Entity* entity, SDL_Renderer* renderer);
-
-// Draw Destroy
-void Entity_Destroy(Entity* entity);
+    // Methods
+    void Init(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
+    void Update(const bool* keys, float dt);
+    void SetScreenBounds(int width, int height);
+    void Draw(SDL_Renderer* renderer);
+};
 
 
 
