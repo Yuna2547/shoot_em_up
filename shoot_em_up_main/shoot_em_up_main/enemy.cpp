@@ -12,7 +12,7 @@ Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float spe
 
 void Enemy::update(float dt) {
     if (!in_position) {
-        rect.y += speed * dt;
+        rect.y += speed * dt / 1.5;
     }
 }
 

@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
                 if (!enemy.isAlive()) continue;
 
                 if (checkCollision(bullet.getRect(), enemy.getRect())) {
-                    enemy.takeDamage(1);
+                    enemy.takeDamage(2);
                     bullet.deactivate();
                     break; // Bullet can only hit one enemy
                 }
