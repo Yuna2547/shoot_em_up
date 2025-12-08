@@ -77,10 +77,25 @@ int main(int argc, char* argv[]) {
         bulletManager.updateBullets(dt, 600);
         enemyManager.update(dt);
 
+        // Check collision between bullets and enemies
+        for (auto& bullet : bulletManager.getBullets()) {
+            if (!bullet.active) continue;
+
+            for (auto& enemy : enemyManager.getEnemies()) {
+                if (!enemy.isAlive()) continue;
+
+                if (checkCollision(bullet.getRect(), enemy.getRect())) {
+                    enemy.takeDamage(1);
+                    bullet.deactivate();
+                    break; // Bullet can only hit one enemy
+                }
+            }
+        }
+
         // Check collision between player and enemies
         const SDL_FRect& playerRect = player.getRect();
         for (auto& enemy : enemyManager.getEnemies()) {
-            if (!enemy.hasCollided() && checkCollision(playerRect, enemy.getRect())) {
+            if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
                 player.takeDamage(1);
                 enemy.setCollided();
             }

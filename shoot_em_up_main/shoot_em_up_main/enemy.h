@@ -16,7 +16,9 @@ private:
     float speed;
     EnemyType type;
     bool in_position;
-    bool has_collided;  // ADD THIS
+    bool has_collided;
+    int health;
+    int max_health;
 
 public:
     Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type);
@@ -28,9 +30,14 @@ public:
     const SDL_FRect& getRect() const { return rect; }
     EnemyType getType() const { return type; }
 
-    // ADD THESE TWO METHODS
     bool hasCollided() const { return has_collided; }
     void setCollided() { has_collided = true; }
+
+    // Health management
+    void takeDamage(int amount);
+    int getHealth() const { return health; }
+    int getMaxHealth() const { return max_health; }
+    bool isAlive() const { return health > 0; }
 };
 
 class EnemyManager {
@@ -49,5 +56,5 @@ public:
     void reset();
 
     const std::vector<Enemy>& getEnemies() const { return enemies; }
-    std::vector<Enemy>& getEnemies() { return enemies; }  // ADD THIS NON-CONST VERSION
+    std::vector<Enemy>& getEnemies() { return enemies; }
 };

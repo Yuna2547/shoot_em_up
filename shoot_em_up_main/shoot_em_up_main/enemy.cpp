@@ -2,7 +2,8 @@
 
 // ---------------- Enemy ----------------
 Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type)
-    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false) {
+    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false),
+    health(10), max_health(10) {
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
@@ -16,6 +17,8 @@ void Enemy::update(float dt) {
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {
+    if (!isAlive()) return;
+
     // Set color based on enemy type
     switch (type) {
     case EnemyType::RED:
@@ -29,6 +32,32 @@ void Enemy::draw(SDL_Renderer* renderer) const {
         break;
     }
     SDL_RenderFillRect(renderer, &rect);
+
+    // Draw health bar above the enemy
+    float bar_width = rect.w;
+    float bar_height = 6.0f;
+    float bar_x = rect.x;
+    float bar_y = rect.y - 10.0f;
+
+    // Background (dark red)
+    SDL_FRect bg_rect = { bar_x, bar_y, bar_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &bg_rect);
+
+    // Health (green)
+    float health_width = (bar_width * health) / max_health;
+    SDL_FRect health_rect = { bar_x, bar_y, health_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &health_rect);
+
+    // Border (white)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderRect(renderer, &bg_rect);
+}
+
+void Enemy::takeDamage(int amount) {
+    health -= amount;
+    if (health < 0) health = 0;
 }
 
 // ---------------- EnemyManager ----------------
@@ -80,7 +109,7 @@ void EnemyManager::update(float dt) {
 }
 
 void EnemyManager::draw(SDL_Renderer* renderer) {
-    // Draw only spawned enemies
+    // Draw only spawned and alive enemies
     for (int i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].draw(renderer);
     }

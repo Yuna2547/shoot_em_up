@@ -12,6 +12,9 @@ public:
     Bullet();
     void update(float dt, int screen_height);
     void draw(SDL_Renderer* renderer) const;
+
+    const SDL_FRect& getRect() const { return rect; }
+    void deactivate() { active = false; }
 };
 
 class BulletManager {
@@ -28,4 +31,6 @@ public:
     void shoot(float x, float y);
     void updateBullets(float dt, int screen_height);
     void draw(SDL_Renderer* renderer);
+
+    std::vector<Bullet>& getBullets() { return bullets; }
 };
