@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 0, 0,
+    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 800, 600,
         SDL_WINDOW_FULLSCREEN);
 
     if (!window) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Entity creation
-    Entity player(screen_w / 2.0f, screen_h / 2.0f, 100.0f, 100.0f, 200.0f, renderer);
+    Entity player(screen_w / 2.0f, screen_h - 150.0f, 100.0f, 100.0f, 200.0f, renderer);
     player.setScreenBounds(screen_w, screen_h);
 
     // Bullet manager
@@ -82,6 +82,9 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_R) {
                     enemyManager.reset();
+                    bulletManager = BulletManager(100, 0.1f);
+                    player = Entity(screen_w / 2.0f, screen_h - 150.0f, 100.0f, 100.0f, 200.0f, renderer);
+                    player.setScreenBounds(screen_w, screen_h);
                 }
                 if (event.key.key == SDLK_ESCAPE) {
                     running = false;
@@ -100,7 +103,7 @@ int main(int argc, char* argv[]) {
             bulletManager.shoot(bullet_x, bullet_y);
         }
 
-        bulletManager.updateBullets(dt, 600);
+        bulletManager.updateBullets(dt, screen_h);
         enemyManager.update(dt);
 
         // Check collision between bullets and enemies
@@ -130,10 +133,14 @@ int main(int argc, char* argv[]) {
         // Check if player is dead
         if (player.getHealth() <= 0) {
             SDL_Log("Game Over! Press R to restart.");
-            // You can add game over logic here
         }
 
-        // CORRIGÉ: Clear d'abord, puis dessiner
+        // Check if all enemies destroyed
+        if (enemyManager.allDestroyed()) {
+            SDL_Log("Victory! All enemies destroyed! Press R to play again.");
+        }
+
+        // Clear screen first, then draw
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -148,12 +155,10 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
-
     }
 
     // Cleanup
     if (bg_texture) SDL_DestroyTexture(bg_texture);
-    // player destructor will run automatically
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

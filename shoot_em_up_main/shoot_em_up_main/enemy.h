@@ -69,4 +69,5 @@ public:
 
     const std::vector<Enemy>& getEnemies() const { return enemies; }
     std::vector<Enemy>& getEnemies() { return enemies; }
+    bool allDestroyed() const;
 };

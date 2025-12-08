@@ -15,7 +15,6 @@ private:
     Sprite* sprite;
 
 public:
-
     // Constructors / destructor
     Entity();
     Entity(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
@@ -23,7 +22,6 @@ public:
 
     // Methods
     void Init(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
-
 
     // Update position based on keyboard input
     void update(const bool* keys, float dt);

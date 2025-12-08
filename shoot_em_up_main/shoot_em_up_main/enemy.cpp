@@ -1,9 +1,9 @@
 #include "enemy.h"
 
 // ---------------- Enemy ----------------
-Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type)
+Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
     : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false),
-    health(10), max_health(10) {
+    health(10), max_health(10), sprite(nullptr) {
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
@@ -43,7 +43,8 @@ Enemy::~Enemy() {
 Enemy::Enemy(Enemy&& other) noexcept
     : rect(other.rect), target_y(other.target_y), speed(other.speed),
     type(other.type), in_position(other.in_position),
-    has_collided(other.has_collided), sprite(other.sprite) {
+    has_collided(other.has_collided), sprite(other.sprite),
+    health(other.health), max_health(other.max_health) {
     other.sprite = nullptr;
 }
 
@@ -59,6 +60,8 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
         in_position = other.in_position;
         has_collided = other.has_collided;
         sprite = other.sprite;
+        health = other.health;
+        max_health = other.max_health;
 
         other.sprite = nullptr;
     }
@@ -67,13 +70,18 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
 
 void Enemy::update(float dt) {
     if (!in_position) {
-        rect.y += speed * dt / 1.5;
+        rect.y += speed * dt / 1.5f;
     }
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {
     if (!isAlive()) return;
 
+    // Draw the sprite first
+    if (sprite && sprite->IsValid()) {
+        SDL_FRect dstRect = rect;
+        sprite->Draw(renderer, &dstRect);
+    }
 
     // Draw health bar above the enemy
     float bar_width = rect.w;
@@ -146,18 +154,29 @@ void EnemyManager::update(float dt) {
     }
 
     // Update only spawned enemies
-    for (int i = 0; i < next_enemy_index && i < enemies.size(); i++) {
+    for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].update(dt);
     }
 }
 
 void EnemyManager::draw(SDL_Renderer* renderer) {
     // Draw only spawned and alive enemies
-    for (int i = 0; i < next_enemy_index && i < enemies.size(); i++) {
+    for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].draw(renderer);
     }
 }
 
 void EnemyManager::reset() {
     setupEnemies(renderer);
+}
+
+bool EnemyManager::allDestroyed() const {
+    if (!all_spawned) return false;
+
+    for (const auto& enemy : enemies) {
+        if (enemy.isAlive()) {
+            return false;
+        }
+    }
+    return true;
 }

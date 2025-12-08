@@ -18,12 +18,18 @@ Entity::Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* r
     rect.h = h;
     if (renderer) {
         sprite = new Sprite(renderer, "assets/player.png");
-        if (!sprite->IsValid()) { delete sprite; sprite = nullptr; }
+        if (!sprite->IsValid()) {
+            delete sprite;
+            sprite = nullptr;
+        }
     }
 }
 
 Entity::~Entity() {
-    if (sprite) { delete sprite; sprite = nullptr; }
+    if (sprite) {
+        delete sprite;
+        sprite = nullptr;
+    }
 }
 
 void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer) {
@@ -37,10 +43,16 @@ void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer
     health = 100;
     max_health = 100;
     invulnerable_timer = 0.0f;
-    if (sprite) { delete sprite; sprite = nullptr; }
+    if (sprite) {
+        delete sprite;
+        sprite = nullptr;
+    }
     if (renderer) {
         sprite = new Sprite(renderer, "assets/player.png");
-        if (!sprite->IsValid()) { delete sprite; sprite = nullptr; }
+        if (!sprite->IsValid()) {
+            delete sprite;
+            sprite = nullptr;
+        }
     }
 }
 
@@ -87,17 +99,23 @@ void Entity::draw(SDL_Renderer* renderer) const {
     // Utiliser le sprite si disponible
     if (sprite && sprite->IsValid()) {
         SDL_FRect dstRect = rect;
-        if (isInvulnerable() && (int)(invulnerable_timer * 10) % 2 == 0) {
-            SDL_SetTextureColorMod(sprite->GetTexture(), 255, 255, 255);
+
+        // Flicker effect when invulnerable
+        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0)) {
+            SDL_SetTextureAlphaMod(sprite->GetTexture(), 128);
         }
         else {
-            SDL_SetTextureColorMod(sprite->GetTexture(), 255, 255, 255);
+            SDL_SetTextureAlphaMod(sprite->GetTexture(), 255);
         }
+
         sprite->Draw(renderer, &dstRect);
+
+        // Reset alpha
+        SDL_SetTextureAlphaMod(sprite->GetTexture(), 255);
     }
     else {
         // Fallback: rectangle si pas de sprite
-        if (isInvulnerable() && (int)(invulnerable_timer * 10) % 2 == 0) {
+        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0)) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         }
         else {
@@ -127,7 +145,6 @@ void Entity::draw(SDL_Renderer* renderer) const {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderRect(renderer, &bg_rect);
 }
-
 
 void Entity::takeDamage(int amount) {
     if (!isInvulnerable()) {
