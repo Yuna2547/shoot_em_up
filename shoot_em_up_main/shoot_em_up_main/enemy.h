@@ -19,6 +19,8 @@ private:
     bool in_position;
     bool has_collided;
     Sprite* sprite;
+    int health;
+    int max_health;
 
 public:
     Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer);
@@ -41,6 +43,12 @@ public:
 
     bool hasCollided() const { return has_collided; }
     void setCollided() { has_collided = true; }
+
+    // Health management
+    void takeDamage(int amount);
+    int getHealth() const { return health; }
+    int getMaxHealth() const { return max_health; }
+    bool isAlive() const { return health > 0; }
 };
 
 class EnemyManager {

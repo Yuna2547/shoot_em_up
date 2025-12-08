@@ -1,8 +1,9 @@
 #include "enemy.h"
 
 // ---------------- Enemy ----------------
-Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
-    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false), sprite(nullptr) {
+Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type)
+    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false),
+    health(10), max_health(10) {
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
@@ -66,14 +67,39 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
 
 void Enemy::update(float dt) {
     if (!in_position) {
-        rect.y += speed * dt;
+        rect.y += speed * dt / 1.5;
     }
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {
-        SDL_FRect dstRect = rect;
-        sprite->Draw(renderer, &dstRect);
-  
+    if (!isAlive()) return;
+
+
+    // Draw health bar above the enemy
+    float bar_width = rect.w;
+    float bar_height = 6.0f;
+    float bar_x = rect.x;
+    float bar_y = rect.y - 10.0f;
+
+    // Background (dark red)
+    SDL_FRect bg_rect = { bar_x, bar_y, bar_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &bg_rect);
+
+    // Health (green)
+    float health_width = (bar_width * health) / max_health;
+    SDL_FRect health_rect = { bar_x, bar_y, health_width, bar_height };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &health_rect);
+
+    // Border (white)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderRect(renderer, &bg_rect);
+}
+
+void Enemy::takeDamage(int amount) {
+    health -= amount;
+    if (health < 0) health = 0;
 }
 
 // ---------------- EnemyManager ----------------
@@ -126,7 +152,7 @@ void EnemyManager::update(float dt) {
 }
 
 void EnemyManager::draw(SDL_Renderer* renderer) {
-    // Draw only spawned enemies
+    // Draw only spawned and alive enemies
     for (int i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].draw(renderer);
     }
