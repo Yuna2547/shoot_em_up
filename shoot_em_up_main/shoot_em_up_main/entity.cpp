@@ -72,3 +72,13 @@ void Entity::SetScreenBounds(int width, int height) {
 void Entity::Draw(SDL_Renderer* renderer) {
  if (sprite) sprite->Draw(renderer, &rect);
 }
+
+void Entity::takeDamage(int amount) {
+    if (!isInvulnerable()) {
+        health -= amount;
+        if (health < 0) health = 0;
+
+        // Set invulnerability period (1 second)
+        invulnerable_timer = 1.0f;
+    }
+}
