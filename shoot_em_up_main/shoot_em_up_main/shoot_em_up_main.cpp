@@ -1,7 +1,9 @@
 #include <SDL3/SDL.h>
 #include "entity.h"
 #include "bullet.h"
+#include "Sprite.h"
 #include "enemy.h"
+#include <SDL3_image/SDL_image.h>
 
 // Collision detection helper
 bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) {
@@ -17,7 +19,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 800, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 0, 0,
+        SDL_WINDOW_FULLSCREEN);
+
     if (!window) {
         SDL_Log("Error creating window: %s", SDL_GetError());
         SDL_Quit();
@@ -32,28 +36,34 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-// Load background safely (expects a PNG at assets/background.png)
-	SDL_Texture* bg_texture = NULL;
-	SDL_Surface* bg_surface = IMG_Load("assets/background.png");
-	if (bg_surface) {
-		bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
-		SDL_DestroySurface(bg_surface);
-		if (!bg_texture) {
-			SDL_Log("Warning: could not create background texture: %s", SDL_GetError());
-		}
-	} else {
-		SDL_Log("Warning: could not load background image: %s", SDL_GetError());
-	}
+    // Query actual screen size
+    int screen_w = 0, screen_h = 0;
+    SDL_GetWindowSize(window, &screen_w, &screen_h);
 
-    // Player entity
-    Entity player(400.0f, 500.0f, 50.0f, 50.0f, 200.0f);
+    // Load background safely (expects a PNG at assets/background.png)
+    SDL_Texture* bg_texture = NULL;
+    SDL_Surface* bg_surface = IMG_Load("assets/background.png");
+    if (bg_surface) {
+        bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
+        SDL_DestroySurface(bg_surface);
+        if (!bg_texture) {
+            SDL_Log("Warning: could not create background texture: %s", SDL_GetError());
+        }
+    }
+    else {
+        SDL_Log("Warning: could not load background image: %s", SDL_GetError());
+    }
+
+    // Entity creation
+    Entity player(screen_w / 2.0f, screen_h / 2.0f, 100.0f, 100.0f, 200.0f, renderer);
+    player.setScreenBounds(screen_w, screen_h);
 
     // Bullet manager
     BulletManager bulletManager(100, 0.1f);
 
     // Enemy manager with scrolling spawn
     EnemyManager enemyManager;
-    enemyManager.setupEnemies();
+    enemyManager.setupEnemies(renderer);
 
     bool running = true;
     SDL_Event event;
@@ -68,10 +78,13 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
-            // Press R to reset enemies
+            // Press R to reset enemies, ESC to quit
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_R) {
                     enemyManager.reset();
+                }
+                if (event.key.key == SDLK_ESCAPE) {
+                    running = false;
                 }
             }
         }
@@ -105,13 +118,14 @@ int main(int argc, char* argv[]) {
             // You can add game over logic here
         }
 
-
-		// Draw background
-		if (bg_texture) {
-			SDL_RenderTexture(renderer, bg_texture, NULL, NULL);
-		}
+        // CORRIGÉ: Clear d'abord, puis dessiner
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        // Draw background
+        if (bg_texture) {
+            SDL_RenderTexture(renderer, bg_texture, NULL, NULL);
+        }
 
         enemyManager.draw(renderer);
         player.draw(renderer);
@@ -119,24 +133,15 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
+
     }
 
-  
-		// Draw bullets
-		BulletManager_Draw(&bulletManager, renderer);
+    // Cleanup
+    if (bg_texture) SDL_DestroyTexture(bg_texture);
+    // player destructor will run automatically
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
-		SDL_RenderPresent(renderer);
-
-		//60 fps limit
-		SDL_Delay(16);
-
-
-	// Cleanup
-	if (bg_texture) SDL_DestroyTexture(bg_texture);
-	// player destructor will run automatically
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-	return 0;
+    return 0;
 }

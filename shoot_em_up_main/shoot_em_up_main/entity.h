@@ -9,7 +9,12 @@ private:
     float speed;
     int screen_width;
     int screen_height;
+    int health;
+    int max_health;
+    float invulnerable_timer;
     Sprite* sprite;
+
+public:
 
     // Constructors / destructor
     Entity();
@@ -18,13 +23,6 @@ private:
 
     // Methods
     void Init(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
-
-
-    int health;
-    int max_health;
-    float invulnerable_timer;
-
-public:
 
 
     // Update position based on keyboard input

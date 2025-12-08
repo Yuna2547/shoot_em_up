@@ -2,11 +2,12 @@
 
 #include <SDL3/SDL.h>
 #include <vector>
+#include "Sprite.h"
 
 enum class EnemyType {
-    RED,
-    YELLOW,
-    BLUE
+    tomato,
+    brocolie,
+    carrot
 };
 
 class Enemy {
@@ -16,10 +17,20 @@ private:
     float speed;
     EnemyType type;
     bool in_position;
-    bool has_collided;  // ADD THIS
+    bool has_collided;
+    Sprite* sprite;
 
 public:
-    Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type);
+    Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer);
+    ~Enemy();
+
+    // Disable copy to avoid sprite pointer issues
+    Enemy(const Enemy&) = delete;
+    Enemy& operator=(const Enemy&) = delete;
+
+    // Enable move
+    Enemy(Enemy&& other) noexcept;
+    Enemy& operator=(Enemy&& other) noexcept;
 
     void update(float dt);
     void draw(SDL_Renderer* renderer) const;
@@ -28,7 +39,6 @@ public:
     const SDL_FRect& getRect() const { return rect; }
     EnemyType getType() const { return type; }
 
-    // ADD THESE TWO METHODS
     bool hasCollided() const { return has_collided; }
     void setCollided() { has_collided = true; }
 };
@@ -39,15 +49,16 @@ private:
     float spawn_timer;
     int next_enemy_index;
     bool all_spawned;
+    SDL_Renderer* renderer;
 
 public:
     EnemyManager();
 
-    void setupEnemies();
+    void setupEnemies(SDL_Renderer* renderer);
     void update(float dt);
     void draw(SDL_Renderer* renderer);
     void reset();
 
     const std::vector<Enemy>& getEnemies() const { return enemies; }
-    std::vector<Enemy>& getEnemies() { return enemies; }  // ADD THIS NON-CONST VERSION
+    std::vector<Enemy>& getEnemies() { return enemies; }
 };

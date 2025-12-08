@@ -1,12 +1,67 @@
 #include "enemy.h"
 
 // ---------------- Enemy ----------------
-Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type)
-    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false) {
+Enemy::Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
+    : target_y(target_y), speed(speed), type(type), in_position(false), has_collided(false), sprite(nullptr) {
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
     rect.h = h;
+
+    // Charger le sprite correspondant au type d'ennemi
+    const char* sprite_path = nullptr;
+    switch (type) {
+    case EnemyType::tomato:
+        sprite_path = "assets/tomato.png";
+        break;
+    case EnemyType::brocolie:
+        sprite_path = "assets/brocolie.png";
+        break;
+    case EnemyType::carrot:
+        sprite_path = "assets/carrot.png";
+        break;
+    }
+
+    if (renderer && sprite_path) {
+        sprite = new Sprite(renderer, sprite_path);
+        if (!sprite->IsValid()) {
+            delete sprite;
+            sprite = nullptr;
+        }
+    }
+}
+
+Enemy::~Enemy() {
+    if (sprite) {
+        delete sprite;
+        sprite = nullptr;
+    }
+}
+
+// Move constructor
+Enemy::Enemy(Enemy&& other) noexcept
+    : rect(other.rect), target_y(other.target_y), speed(other.speed),
+    type(other.type), in_position(other.in_position),
+    has_collided(other.has_collided), sprite(other.sprite) {
+    other.sprite = nullptr;
+}
+
+// Move assignment
+Enemy& Enemy::operator=(Enemy&& other) noexcept {
+    if (this != &other) {
+        if (sprite) delete sprite;
+
+        rect = other.rect;
+        target_y = other.target_y;
+        speed = other.speed;
+        type = other.type;
+        in_position = other.in_position;
+        has_collided = other.has_collided;
+        sprite = other.sprite;
+
+        other.sprite = nullptr;
+    }
+    return *this;
 }
 
 void Enemy::update(float dt) {
@@ -16,40 +71,31 @@ void Enemy::update(float dt) {
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {
-    // Set color based on enemy type
-    switch (type) {
-    case EnemyType::RED:
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        break;
-    case EnemyType::YELLOW:
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        break;
-    case EnemyType::BLUE:
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        break;
-    }
-    SDL_RenderFillRect(renderer, &rect);
+        SDL_FRect dstRect = rect;
+        sprite->Draw(renderer, &dstRect);
+  
 }
 
 // ---------------- EnemyManager ----------------
 EnemyManager::EnemyManager()
-    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false) {
+    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr) {
 }
 
-void EnemyManager::setupEnemies() {
+void EnemyManager::setupEnemies(SDL_Renderer* renderer) {
+    this->renderer = renderer;
     enemies.clear();
 
     // First row - 2 red enemies (will be activated first)
-    enemies.emplace_back(250.0f, -100.0f, 50.0f, 40.0f, 40.0f, 150.0f, EnemyType::RED);
-    enemies.emplace_back(510.0f, -100.0f, 50.0f, 40.0f, 40.0f, 150.0f, EnemyType::RED);
+    enemies.emplace_back(250.0f, -100.0f, 50.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato, renderer);
+    enemies.emplace_back(510.0f, -100.0f, 50.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato, renderer);
 
     // Second row - 2 yellow enemies
-    enemies.emplace_back(250.0f, -100.0f, 120.0f, 40.0f, 40.0f, 150.0f, EnemyType::YELLOW);
-    enemies.emplace_back(510.0f, -100.0f, 120.0f, 40.0f, 40.0f, 150.0f, EnemyType::YELLOW);
+    enemies.emplace_back(250.0f, -100.0f, 120.0f, 70.0f, 70.0f, 150.0f, EnemyType::brocolie, renderer);
+    enemies.emplace_back(510.0f, -100.0f, 120.0f, 70.0f, 70.0f, 150.0f, EnemyType::brocolie, renderer);
 
     // Third row - 2 blue enemies
-    enemies.emplace_back(250.0f, -100.0f, 190.0f, 40.0f, 40.0f, 150.0f, EnemyType::BLUE);
-    enemies.emplace_back(510.0f, -100.0f, 190.0f, 40.0f, 40.0f, 150.0f, EnemyType::BLUE);
+    enemies.emplace_back(250.0f, -100.0f, 190.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot, renderer);
+    enemies.emplace_back(510.0f, -100.0f, 190.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot, renderer);
 
     next_enemy_index = 0;
     all_spawned = false;
@@ -87,5 +133,5 @@ void EnemyManager::draw(SDL_Renderer* renderer) {
 }
 
 void EnemyManager::reset() {
-    setupEnemies();
+    setupEnemies(renderer);
 }
