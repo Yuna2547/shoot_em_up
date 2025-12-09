@@ -1,4 +1,5 @@
 #include "bullet.h"
+#include <SDL3/SDL.h>
 
 // ---------------- Bullet ----------------
 Bullet::Bullet() {
@@ -12,16 +13,29 @@ void Bullet::update(float dt, int screen_height) {
         rect.y -= speed * dt;
 
         // Deactivate if off screen
-        if (rect.y + rect.h < 0) {
+        if (rect.y + rect.h < 0.0f) {
             active = false;
         }
     }
 }
 
 void Bullet::draw(SDL_Renderer* renderer) const {
-    if (active) {
-        SDL_RenderFillRect(renderer, &rect);
-    }
+    if (!renderer || !active) return;
+
+    // SDL3: Fill with SDL_FRect directly
+    SDL_RenderFillRect(renderer, &rect);
+
+    // Optional: outline for clarity
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderRect(renderer, &rect);
+}
+
+void Bullet::deactivate() {
+    active = false;
+}
+
+const SDL_FRect& Bullet::getRect() const {
+    return rect;
 }
 
 // ---------------- BulletManager ----------------
@@ -61,8 +75,16 @@ void BulletManager::updateBullets(float dt, int screen_height) {
 }
 
 void BulletManager::draw(SDL_Renderer* renderer) {
+    if (!renderer) return;
+
+    // Set bullet color once
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow bullets
+
     for (const auto& bullet : bullets) {
         bullet.draw(renderer);
     }
+}
+
+std::vector<Bullet>& BulletManager::getBullets() {
+    return bullets;
 }

@@ -40,6 +40,12 @@ int main(int argc, char* argv[]) {
     int screen_w = 0, screen_h = 0;
     SDL_GetWindowSize(window, &screen_w, &screen_h);
 
+    // Define play area (55% of screen width, centered)
+    int play_width = static_cast<int>(screen_w * 0.55f);
+    int play_x = (screen_w - play_width) / 2;
+
+    SDL_Log("Screen: %dx%d, Play area: x=%d, width=%d", screen_w, screen_h, play_x, play_width);
+
     // Load background safely (expects a PNG at assets/background.png)
     SDL_Texture* bg_texture = NULL;
     SDL_Surface* bg_surface = IMG_Load("assets/background.png");
@@ -54,18 +60,27 @@ int main(int argc, char* argv[]) {
         SDL_Log("Warning: could not load background image: %s", SDL_GetError());
     }
 
-    // Entity creation
-    Entity player(screen_w / 2.0f, screen_h - 150.0f, 100.0f, 100.0f, 200.0f, renderer);
-    player.setScreenBounds(screen_w, screen_h);
+    // Store initial player position for reset
+    float initial_player_x = play_x + play_width / 2.0f - 50.0f;
+    float initial_player_y = screen_h - 150.0f;
+
+    // Create player entity centered in play area
+    Entity player(initial_player_x, initial_player_y, 100.0f, 130.0f, 200.0f, renderer);
+    player.setScreenBounds(play_width, screen_h);
+    player.setOffsetX(play_x);
 
     // Bullet manager
     BulletManager bulletManager(100, 0.1f);
 
-    // Enemy manager with scrolling spawn
+    // Enemy manager
     EnemyManager enemyManager;
-    enemyManager.setupEnemies(renderer);
+    enemyManager.setupEnemies(renderer, play_x, play_width);
 
+    // Game state
     bool running = true;
+    bool game_over = false;
+    bool victory = false;
+
     SDL_Event event;
     Uint64 last_time = SDL_GetTicks();
 
@@ -74,73 +89,98 @@ int main(int argc, char* argv[]) {
         float dt = (current_time - last_time) / 1000.0f;
         last_time = current_time;
 
+        // Event handling
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
-            // Press R to reset enemies, ESC to quit
+
             if (event.type == SDL_EVENT_KEY_DOWN) {
+                // Press R to reset game
                 if (event.key.key == SDLK_R) {
-                    enemyManager.reset();
+                    SDL_Log("Resetting game...");
+
+                    // Reset player
+                    player.resetPosition(initial_player_x, initial_player_y);
+                    player.resetHealth();
+
+                    // Clear all bullets
                     bulletManager = BulletManager(100, 0.1f);
-                    player = Entity(screen_w / 2.0f, screen_h - 150.0f, 100.0f, 100.0f, 200.0f, renderer);
-                    player.setScreenBounds(screen_w, screen_h);
+
+                    // Reset enemies
+                    enemyManager.setupEnemies(renderer, play_x, play_width);
+
+                    // Reset game state
+                    game_over = false;
+                    victory = false;
+
+                    SDL_Log("Game reset complete!");
                 }
+
+                // Press ESC to quit
                 if (event.key.key == SDLK_ESCAPE) {
                     running = false;
                 }
             }
         }
 
-        const bool* keys = SDL_GetKeyboardState(NULL);
-        player.update(keys, dt);
+        // Only update game if not game over or victory
+        if (!game_over && !victory) {
+            // Player input and movement
+            const bool* keys = SDL_GetKeyboardState(NULL);
+            player.update(keys, dt);
 
-        bulletManager.update(dt);
+            // Shooting
+            if (keys[SDL_SCANCODE_SPACE]) {
+                float bullet_x = player.getRect().x + (player.getRect().w / 2.0f) - 2.5f;
+                float bullet_y = player.getRect().y;
+                bulletManager.shoot(bullet_x, bullet_y);
+            }
 
-        if (keys[SDL_SCANCODE_SPACE]) {
-            float bullet_x = player.getRect().x + (player.getRect().w / 2.0f) - 2.5f;
-            float bullet_y = player.getRect().y;
-            bulletManager.shoot(bullet_x, bullet_y);
-        }
+            // Update bullets and enemies
+            bulletManager.update(dt);
+            bulletManager.updateBullets(dt, screen_h);
+            enemyManager.update(dt);
 
-        bulletManager.updateBullets(dt, screen_h);
-        enemyManager.update(dt);
+            // Check collision between bullets and enemies
+            for (auto& bullet : bulletManager.getBullets()) {
+                if (!bullet.active) continue;
 
-        // Check collision between bullets and enemies
-        for (auto& bullet : bulletManager.getBullets()) {
-            if (!bullet.active) continue;
+                for (auto& enemy : enemyManager.getEnemies()) {
+                    if (!enemy.isAlive()) continue;
 
-            for (auto& enemy : enemyManager.getEnemies()) {
-                if (!enemy.isAlive()) continue;
-
-                if (checkCollision(bullet.getRect(), enemy.getRect())) {
-                    enemy.takeDamage(2);
-                    bullet.deactivate();
-                    break; // Bullet can only hit one enemy
+                    if (checkCollision(bullet.getRect(), enemy.getRect())) {
+                        enemy.takeDamage(2);
+                        bullet.deactivate();
+                        break; // Bullet can only hit one enemy
+                    }
                 }
             }
-        }
 
-        // Check collision between player and enemies
-        const SDL_FRect& playerRect = player.getRect();
-        for (auto& enemy : enemyManager.getEnemies()) {
-            if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
-                player.takeDamage(1);
-                enemy.setCollided();
+            // Check collision between player and enemies
+            const SDL_FRect& playerRect = player.getRect();
+            for (auto& enemy : enemyManager.getEnemies()) {
+                if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
+                    player.takeDamage(1);
+                    enemy.setCollided();
+                }
+            }
+
+            // Check win/lose conditions
+            if (player.getHealth() <= 0) {
+                game_over = true;
+                SDL_Log("Game Over! Press R to restart.");
+            }
+
+            if (enemyManager.allDestroyed()) {
+                victory = true;
+                SDL_Log("Victory! All enemies destroyed! Press R to play again.");
             }
         }
 
-        // Check if player is dead
-        if (player.getHealth() <= 0) {
-            SDL_Log("Game Over! Press R to restart.");
-        }
+        // ===== RENDERING =====
 
-        // Check if all enemies destroyed
-        if (enemyManager.allDestroyed()) {
-            SDL_Log("Victory! All enemies destroyed! Press R to play again.");
-        }
-
-        // Clear screen first, then draw
+        // Clear screen first
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -149,12 +189,36 @@ int main(int argc, char* argv[]) {
             SDL_RenderTexture(renderer, bg_texture, NULL, NULL);
         }
 
-        enemyManager.draw(renderer);
+        // Draw game entities FIRST (on the play area)
+        enemyManager.draw();
         player.draw(renderer);
         bulletManager.draw(renderer);
 
+        // Draw black bars on sides LAST (to cover anything outside play area)
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(play_x), static_cast<float>(screen_h) };
+        SDL_RenderFillRect(renderer, &leftBar);
+
+        SDL_FRect rightBar = { static_cast<float>(play_x + play_width), 0.0f,
+                               static_cast<float>(screen_w - play_x - play_width), static_cast<float>(screen_h) };
+        SDL_RenderFillRect(renderer, &rightBar);
+
+        // Draw game over or victory message
+        if (game_over) {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
+            SDL_FRect overlay = { static_cast<float>(play_x), static_cast<float>(screen_h / 2 - 50),
+                                 static_cast<float>(play_width), 100.0f };
+            SDL_RenderFillRect(renderer, &overlay);
+        }
+        else if (victory) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 200);
+            SDL_FRect overlay = { static_cast<float>(play_x), static_cast<float>(screen_h / 2 - 50),
+                                 static_cast<float>(play_width), 100.0f };
+            SDL_RenderFillRect(renderer, &overlay);
+        }
+
         SDL_RenderPresent(renderer);
-        SDL_Delay(16);
+        SDL_Delay(16); // ~60 FPS
     }
 
     // Cleanup

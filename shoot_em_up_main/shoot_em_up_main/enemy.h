@@ -11,63 +11,64 @@ enum class EnemyType {
 };
 
 class Enemy {
-private:
+public:
     SDL_FRect rect;
-    float target_y;
     float speed;
     EnemyType type;
-    bool in_position;
     bool has_collided;
-    Sprite* sprite;
     int health;
     int max_health;
+    Sprite* sprite;
 
-public:
-    Enemy(float x, float start_y, float target_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer);
+    // Horizontal movement
+    bool horizontal;
+    float hspeed;
+    int min_x;
+    int max_x;
+    bool move_right;
+
+    Enemy(float x, float start_y, float w, float h, float speed,
+        EnemyType type, SDL_Renderer* renderer);
     ~Enemy();
 
-    // Disable copy to avoid sprite pointer issues
-    Enemy(const Enemy&) = delete;
-    Enemy& operator=(const Enemy&) = delete;
-
-    // Enable move
+    // Move constructor and assignment
     Enemy(Enemy&& other) noexcept;
     Enemy& operator=(Enemy&& other) noexcept;
 
+    // Delete copy constructor and assignment
+    Enemy(const Enemy&) = delete;
+    Enemy& operator=(const Enemy&) = delete;
+
+    void setHorizontalBounds(int minX, int maxX);
+    void setHorizontalMovement(bool enabled, float speed, int minX, int maxX);
     void update(float dt);
     void draw(SDL_Renderer* renderer) const;
-
-    bool isInPosition() const { return in_position; }
-    const SDL_FRect& getRect() const { return rect; }
-    EnemyType getType() const { return type; }
-
-    bool hasCollided() const { return has_collided; }
-    void setCollided() { has_collided = true; }
-
-    // Health management
     void takeDamage(int amount);
-    int getHealth() const { return health; }
-    int getMaxHealth() const { return max_health; }
-    bool isAlive() const { return health > 0; }
+
+    bool isAlive() const;
+    bool hasCollided() const;
+    void setCollided();
+    const SDL_FRect& getRect() const;
 };
 
 class EnemyManager {
 private:
     std::vector<Enemy> enemies;
     float spawn_timer;
-    int next_enemy_index;
+    size_t next_enemy_index;
     bool all_spawned;
     SDL_Renderer* renderer;
+    int play_area_x;
+    int play_area_width;
 
 public:
     EnemyManager();
 
-    void setupEnemies(SDL_Renderer* renderer);
+    void setupEnemies(SDL_Renderer* renderer, int play_x, int play_width);
     void update(float dt);
-    void draw(SDL_Renderer* renderer);
+    void draw();
     void reset();
-
-    const std::vector<Enemy>& getEnemies() const { return enemies; }
-    std::vector<Enemy>& getEnemies() { return enemies; }
     bool allDestroyed() const;
+
+    std::vector<Enemy>& getEnemies();
 };

@@ -1,43 +1,36 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include "Sprite.h"
+
+// Forward declaration
+class Sprite;
 
 class Entity {
-private:
+public:
     SDL_FRect rect;
     float speed;
     int screen_width;
     int screen_height;
+    Sprite* sprite;
     int health;
     int max_health;
     float invulnerable_timer;
-    Sprite* sprite;
+    int offset_x;
 
-public:
-    // Constructors / destructor
     Entity();
-    Entity(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
+    Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer);
     ~Entity();
 
-    // Methods
-    void Init(float x, float y, float w, float h, float speed, SDL_Renderer* renderer);
-
-    // Update position based on keyboard input
+    void Init(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer);
     void update(const bool* keys, float dt);
-
-    // Set screen bounds
     void setScreenBounds(int width, int height);
-
-    // Draw entity and health bar
+    void setOffsetX(int offset);
     void draw(SDL_Renderer* renderer) const;
-
-    // Health management
     void takeDamage(int amount);
-    int getHealth() const { return health; }
-    int getMaxHealth() const { return max_health; }
-    bool isInvulnerable() const { return invulnerable_timer > 0.0f; }
+    void resetPosition(float x, float y);
+    void resetHealth();
 
-    // Accessors
-    const SDL_FRect& getRect() const { return rect; }
+    const SDL_FRect& getRect() const;
+    int getHealth() const;
+    bool isInvulnerable() const;
 };

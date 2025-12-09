@@ -10,11 +10,11 @@ public:
     bool active;
 
     Bullet();
+
     void update(float dt, int screen_height);
     void draw(SDL_Renderer* renderer) const;
-
-    const SDL_FRect& getRect() const { return rect; }
-    void deactivate() { active = false; }
+    void deactivate();
+    const SDL_FRect& getRect() const;
 };
 
 class BulletManager {
@@ -25,12 +25,12 @@ private:
     float cooldown_timer;
 
 public:
-    BulletManager(int maxBullets = 100, float cooldown = 0.3f);
+    BulletManager(int maxBullets = 100, float cooldown = 0.1f);
 
     void update(float dt);
     void shoot(float x, float y);
     void updateBullets(float dt, int screen_height);
     void draw(SDL_Renderer* renderer);
 
-    std::vector<Bullet>& getBullets() { return bullets; }
+    std::vector<Bullet>& getBullets();
 };

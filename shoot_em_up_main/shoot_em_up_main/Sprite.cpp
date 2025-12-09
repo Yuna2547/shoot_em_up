@@ -52,7 +52,9 @@ SDL_Texture* Sprite::GetTexture() const {
     return texture;
 }
 
-void Sprite::Draw(SDL_Renderer* renderer, SDL_FRect* dstRect) {
+void Sprite::Draw(SDL_Renderer* renderer, const SDL_FRect* dstRect) const {
     if (!renderer || !texture || !dstRect) return;
-    SDL_RenderTexture(renderer, texture, NULL, dstRect);
+
+    // SDL3 unified API: SDL_RenderTexture accepts SDL_FRect directly
+    SDL_RenderTexture(renderer, texture, nullptr, dstRect);
 }
