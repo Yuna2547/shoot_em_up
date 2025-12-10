@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     SDL_GetWindowSize(window, &screen_w, &screen_h);
 
     // Define play area (55% of screen width, centered)
-    int play_width = static_cast<int>(screen_w * 0.55f);
+    int play_width = static_cast<int>(screen_w * 0.35f);
     int play_x = (screen_w - play_width) / 2;
 
     SDL_Log("Screen: %dx%d, Play area: x=%d, width=%d", screen_w, screen_h, play_x, play_width);
