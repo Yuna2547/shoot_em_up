@@ -31,6 +31,11 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed,
             sprite = nullptr;
         }
     }
+
+}
+
+bool Enemy::isOffScreen(int screen_height) const {
+    return rect.y > screen_height;  // Enemy has fallen below the screen
 }
 
 Enemy::~Enemy() {

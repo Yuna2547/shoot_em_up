@@ -49,6 +49,7 @@ public:
     bool hasCollided() const;
     void setCollided();
     const SDL_FRect& getRect() const;
+    bool isOffScreen(int screen_height) const;
 };
 
 class EnemyManager {

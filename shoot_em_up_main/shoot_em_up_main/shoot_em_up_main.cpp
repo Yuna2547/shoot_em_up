@@ -205,6 +205,14 @@ int main(int argc, char* argv[]) {
             bulletManager.updateBullets(dt, screen_h);
             enemyManager.update(dt);
 
+            // Check for enemies that went offscreen - player loses HP
+            for (auto& enemy : enemyManager.getEnemies()) {
+                if (enemy.isAlive() && !enemy.hasCollided() && enemy.isOffScreen(screen_h)) {
+                    player.takeDamage(1);
+                    enemy.setCollided(); // Mark as collided so we don't damage again
+                }
+            }
+
             // Bullet<->enemy collisions
             for (auto& bullet : bulletManager.getBullets()) {
                 if (!bullet.active) continue;

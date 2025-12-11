@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "Sprite.h"
+#include "enemy.h"
 
 Entity::Entity()
     : speed(0), screen_width(0), screen_height(0), sprite(nullptr),
@@ -143,7 +144,7 @@ void Entity::takeDamage(int amount) {
     if (!isInvulnerable()) {
         health -= amount;
         if (health < 0) health = 0;
-        invulnerable_timer = 1.0f; // 1 second invulnerability
+        invulnerable_timer = 0.5f; // 1 second invulnerability
     }
 }
 
