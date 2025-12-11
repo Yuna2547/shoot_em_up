@@ -18,7 +18,7 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed,
     const char* sprite_path = nullptr;
     switch (type) {
     case EnemyType::tomato:   sprite_path = "assets/tomato.png"; break;
-    case EnemyType::brocolie: sprite_path = "assets/brocolie.png"; break;
+    case EnemyType::broccoli: sprite_path = "assets/brocolie.png"; break;
     case EnemyType::carrot:   sprite_path = "assets/carrot.png"; break;
     }
 
@@ -198,16 +198,19 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
         };
 
     // Row 1: Tomatoes (move horizontally side-to-side)
-    addEnemy(80.0f, -100.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
-    addEnemy(play_width - 150.0f, -150.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
+    addEnemy(80.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
+    addEnemy(play_width - 150.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
+    addEnemy(-100.0f, -50.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
+    addEnemy(play_width - 250.0f, -500.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
 
     // Row 2: Broccoli (fall straight down)
-    addEnemy(80.0f, -200.0f, 70.0f, 70.0f, 150.0f, EnemyType::brocolie);
-    addEnemy(play_width - 150.0f, -250.0f, 70.0f, 70.0f, 150.0f, EnemyType::brocolie);
+    addEnemy(100.0f, -200.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
+    addEnemy(play_width - 150.0f, -550.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
+    addEnemy(500.0f, -400.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
 
     // Row 3: Carrots (fall straight down)
-    addEnemy(80.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
-    addEnemy(play_width - 150.0f, -350.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
+    addEnemy(200.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
+    addEnemy(play_width - 550.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
 
     // All enemies are immediately active (no delayed spawning)
     next_enemy_index = enemies.size();

@@ -6,7 +6,7 @@
 
 enum class EnemyType {
     tomato,
-    brocolie,
+    broccoli,
     carrot
 };
 

@@ -144,7 +144,7 @@ void Entity::takeDamage(int amount) {
     if (!isInvulnerable()) {
         health -= amount;
         if (health < 0) health = 0;
-        invulnerable_timer = 0.5f; // 1 second invulnerability
+        invulnerable_timer = 0.5f; // 0.5 second invulnerability
     }
 }
 
