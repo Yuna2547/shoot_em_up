@@ -10,7 +10,7 @@ Entity::Entity()
 
 Entity::Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer)
     : speed(speed_), screen_width(800), screen_height(600), sprite(nullptr),
-    health(1), max_health(1), invulnerable_timer(0.0f), offset_x(0)
+    health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0)
 {
     rect.x = x;
     rect.y = y;
@@ -66,10 +66,10 @@ void Entity::update(const bool* keys, float dt) {
     }
 
     // Movement
-    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) rect.y -= speed * dt;
-    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) rect.y += speed * dt;
-    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) rect.x -= speed * dt;
-    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) rect.x += speed * dt;
+    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) rect.y -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) rect.y += speed * dt + 1;
+    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) rect.x -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) rect.x += speed * dt + 1;
 
     // Clamp to play area
     if (rect.x < static_cast<float>(offset_x)) rect.x = static_cast<float>(offset_x);

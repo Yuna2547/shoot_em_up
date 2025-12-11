@@ -4,7 +4,7 @@
 // ---------------- Bullet ----------------
 Bullet::Bullet() {
     rect = { 0, 0, 5.0f, 15.0f };
-    speed = 400.0f;
+    speed = 800.0f;
     active = false;
 }
 
