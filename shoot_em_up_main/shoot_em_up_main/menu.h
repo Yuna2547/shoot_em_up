@@ -21,6 +21,8 @@ private:
     Button quitButton;
     Button resumeButton;  // New button for pausing
     bool isPauseMenu;     // Track if this is pause menu or main menu
+    bool isVictoryMenu;
+    bool isGameOverMenu;
     int windowWidth;      // Current window width
     int windowHeight;     // Current window height
 
@@ -44,6 +46,13 @@ public:
 
     // Set whether this is a pause menu or main menu
     void setPauseMode(bool isPause);
+
+    // Set victory menu
+    void setVictoryMode(bool isVictory);
+
+    void setGameOverMode(bool isGameOver);
+    // Set game over menu
+    void setGameOver(bool isGameOver);
 
     // Update window dimensions and recalculate positions
     void setWindowSize(int width, int height);

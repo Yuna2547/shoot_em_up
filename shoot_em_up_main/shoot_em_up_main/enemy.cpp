@@ -235,6 +235,7 @@ void EnemyManager::draw() {
     }
 }
 
+
 //Resets the level by recreating all enemies
 void EnemyManager::reset() {
     if (renderer) {

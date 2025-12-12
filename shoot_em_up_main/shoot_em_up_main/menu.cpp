@@ -53,6 +53,34 @@ void Menu::setPauseMode(bool isPause) {
     isPauseMenu = isPause;
 }
 
+void Menu::setVictoryMode(bool isVictory){
+    isVictoryMenu = isVictory;
+    if (isVictory) {
+        resumeButton.text = "Restart";
+        resumeButton.color = { 0, 150, 200, 255 };
+        resumeButton.hoverColor = { 0,180,230,255 };
+    }
+    else {
+        resumeButton.text = "Resume";
+        resumeButton.color = { 0, 180, 0, 255 };
+        resumeButton.hoverColor = { 0, 220, 0, 255 };
+    }
+}
+
+void Menu::setGameOverMode(bool isGameOver) {
+    isGameOverMenu = isGameOver;
+    if (isGameOver) {
+        resumeButton.text = "Restart";
+        resumeButton.color = { 0, 150, 200, 255 };
+        resumeButton.hoverColor = { 0,180,230,255 };
+    }
+    else {
+        resumeButton.text = "Resume";
+        resumeButton.color = { 0, 180, 0, 255 };
+        resumeButton.hoverColor = { 0, 220, 0, 255 };
+    }
+}
+
 void Menu::setWindowSize(int width, int height) {
     windowWidth = width;
     windowHeight = height;
@@ -200,14 +228,28 @@ void Menu::draw() {
     // Draw title
     if (font) {
         SDL_Color titleColor = { 255, 255, 255, 255 };
-        const char* title = isPauseMenu ? "PAUSED" : "Shoot 'Em Up";
+        const char* title;
+
+        if (isPauseMenu) {
+            if (isVictoryMenu) {
+                title = "VICTORY!";
+            }
+            else if (isGameOverMenu) {
+                title = "GAME OVER";
+            }
+            else {
+                title = "PAUSED";
+            }
+        }
+        else {
+            title = "Shoot 'Em Up";
+        }
 
         // Get title dimensions
         SDL_Surface* tempSurface = TTF_RenderText_Blended(font, title, 0, titleColor);
         if (tempSurface) {
             int titleW = tempSurface->w;
             SDL_DestroySurface(tempSurface);
-            // Center title horizontally, position above buttons
             int titleY = (int)(playButton.rect.y - 100);
             drawText(title, (windowWidth - titleW) / 2, titleY, titleColor);
         }

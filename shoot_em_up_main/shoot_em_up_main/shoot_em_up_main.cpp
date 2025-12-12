@@ -4,34 +4,40 @@
 #include "Sprite.h"
 #include "enemy.h"
 #include "menu.h"
+#include "gamestate.h"
 #include <SDL3_image/SDL_image.h>
 
 // Collision detection helper
 bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) {
-    return (a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y);
+    return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
+}
+
+void resetGame(Entity& player, float initial_x, float initial_y, BulletManager& bulletManager, 
+    EnemyManager& enemyManager, GameState& gameState, SDL_Renderer* renderer, int play_x, int play_width) {
+    player.resetPosition(initial_x, initial_y);
+    player.resetHealth();
+    bulletManager = BulletManager(100, 0.1f);
+    enemyManager.setupEnemies(renderer, play_x, play_width);
+    gameState.reset();
 }
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        SDL_Log("Error SDL_Init: %s", SDL_GetError());
+        SDL_Log("Error SDL_Init: ", SDL_GetError());
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 800, 600,
-        SDL_WINDOW_FULLSCREEN);
+    SDL_Window* window = SDL_CreateWindow("Shoot 'Em Up", 800, 600,SDL_WINDOW_FULLSCREEN);
 
     if (!window) {
-        SDL_Log("Error creating window: %s", SDL_GetError());
+        SDL_Log("Error creating window: ", SDL_GetError());
         SDL_Quit();
         return 1;
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
     if (!renderer) {
-        SDL_Log("Error creating renderer: %s", SDL_GetError());
+        SDL_Log("Error creating renderer: ", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
@@ -49,10 +55,9 @@ int main(int argc, char* argv[]) {
     int play_width = static_cast<int>(screen_w * 0.35f);
     int play_x = (screen_w - play_width) / 2;
 
-    SDL_Log("Screen: %dx%d, Play area: x=%d, width=%d", screen_w, screen_h, play_x, play_width);
+    SDL_Log("Screen: ", screen_w, " x ", screen_h, ", Play area: x = ", play_x, "width = ", play_width);
 
     // === MENU SECTION ===
-    // Pass current window dimensions (ints) to Menu constructor
     Menu gameMenu(renderer, windowWidth, windowHeight);
     bool inMenu = true;
     bool startGame = false;
@@ -72,9 +77,7 @@ int main(int argc, char* argv[]) {
 
             // Handle window resize in menu
             if (menuEvent.type == SDL_EVENT_WINDOW_RESIZED) {
-                // Update stored window size and notify menu
                 SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-                // update global screen dimensions as well
                 screen_w = windowWidth;
                 screen_h = windowHeight;
                 gameMenu.setWindowSize(windowWidth, windowHeight);
@@ -82,12 +85,12 @@ int main(int argc, char* argv[]) {
 
             int menuResult = gameMenu.handleEvents(menuEvent);
             if (menuResult == 1) {
-                // Play clicked
+                // Play 
                 startGame = true;
                 inMenu = false;
             }
             else if (menuResult == 2) {
-                // Quit clicked
+                // Quit 
                 inMenu = false;
             }
         }
@@ -112,11 +115,11 @@ int main(int argc, char* argv[]) {
         bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
         SDL_DestroySurface(bg_surface);
         if (!bg_texture) {
-            SDL_Log("Warning: could not create background texture: %s", SDL_GetError());
+            SDL_Log("Warning: could not create background texture: ", SDL_GetError());
         }
     }
     else {
-        SDL_Log("Warning: could not load background image: %s", SDL_GetError());
+        SDL_Log("Warning: could not load background image: ", SDL_GetError());
     }
 
     // Store initial player position for reset
@@ -136,11 +139,8 @@ int main(int argc, char* argv[]) {
     enemyManager.setupEnemies(renderer, play_x, play_width);
 
     // Game state
+    GameState gameState;
     bool running = true;
-    bool paused = false;
-    bool game_over = false;
-    bool victory = false;
-
     SDL_Event event;
     Uint64 last_time = SDL_GetTicks();
 
@@ -162,36 +162,37 @@ int main(int argc, char* argv[]) {
 
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_R) {
-                    SDL_Log("Resetting game...");
-                    player.resetPosition(initial_player_x, initial_player_y);
-                    player.resetHealth();
-                    bulletManager = BulletManager(100, 0.1f);
-                    enemyManager.setupEnemies(renderer, play_x, play_width);
-                    game_over = false;
-                    victory = false;
-                    SDL_Log("Game reset complete!");
+                    resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyManager, gameState, renderer, play_x, play_width);
                 }
 
                 if (event.key.key == SDLK_ESCAPE) {
-                    paused = !paused;
-                    gameMenu.setPauseMode(paused);
+                    if (!gameState.isGameOver() && !gameState.isVictory() && !gameState.isGameOver()) {
+                        gameState.togglePause();
+                        gameMenu.setPauseMode(gameState.isPaused());
+                        gameMenu.setVictoryMode(false);
+                    }
                 }
             }
 
             // If paused, give the menu a chance to handle events
-            if (paused) {
+            if (gameState.isPaused() || gameState.isVictory() || gameState.isGameOver()) {
                 int menuResult = gameMenu.handleEvents(event);
-                // menuResult: 1 = resume, 2 = quit
                 if (menuResult == 1) {
-                    paused = false;
-                } else if (menuResult == 2) {
+                    if (gameState.isVictory() || gameState.isGameOver()) {
+                        resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyManager, gameState, renderer, play_x, play_width);
+                    }
+                    else {
+                        gameState.setPaused(false);
+                    }
+                }
+                else if (menuResult == 2) {
                     running = false;
                 }
             }
-        } // end event polling
+        }
 
-        // ---- Game update (outside event loop) ----
-        if (!paused && !game_over && !victory) {
+        // Game update
+        if (gameState.isActive()) {
             const bool* keys = SDL_GetKeyboardState(NULL);
             player.update(keys, dt);
 
@@ -236,13 +237,17 @@ int main(int argc, char* argv[]) {
             }
 
             if (player.getHealth() <= 0) {
-                game_over = true;
-                SDL_Log("Game Over! Press R to restart.");
+                gameState.setGameOver(true);
+                gameState.setPaused(true);
+                gameMenu.setPauseMode(true);
+                gameMenu.setGameOverMode(true);
             }
 
             if (enemyManager.allDestroyed()) {
-                victory = true;
-                SDL_Log("Victory! All enemies destroyed! Press R to play again.");
+                gameState.setVictory(true);
+                gameState.setPaused(true);
+                gameMenu.setPauseMode(true);
+                gameMenu.setVictoryMode(true);
             }
         }
 
@@ -262,29 +267,16 @@ int main(int argc, char* argv[]) {
         SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(play_x), static_cast<float>(screen_h) };
         SDL_RenderFillRect(renderer, &leftBar);
 
-        SDL_FRect rightBar = { static_cast<float>(play_x + play_width), 0.0f,
-                               static_cast<float>(screen_w - play_x - play_width), static_cast<float>(screen_h) };
+        SDL_FRect rightBar = { static_cast<float>(play_x + play_width), 0.0f, static_cast<float>(screen_w - play_x - play_width), static_cast<float>(screen_h) };
         SDL_RenderFillRect(renderer, &rightBar);
 
-        if (game_over) {
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
-            SDL_FRect overlay = { static_cast<float>(play_x), static_cast<float>(screen_h / 2 - 50),
-                                 static_cast<float>(play_width), 100.0f };
-            SDL_RenderFillRect(renderer, &overlay);
-        } else if (victory) {
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 200);
-            SDL_FRect overlay = { static_cast<float>(play_x), static_cast<float>(screen_h / 2 - 50),
-                                 static_cast<float>(play_width), 100.0f };
-            SDL_RenderFillRect(renderer, &overlay);
-        }
-
-        if (paused) {
+        if (gameState.isPaused() || gameState.isVictory() || gameState.isGameOver()) {
             gameMenu.draw();
         }
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(16); // ~60 FPS
-    } // end while (running)
+        SDL_Delay(16); 
+    } 
 
     // Cleanup (after main loop)
     if (bg_texture) SDL_DestroyTexture(bg_texture);
