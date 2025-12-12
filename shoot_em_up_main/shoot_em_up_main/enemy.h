@@ -66,6 +66,7 @@ private:
     SDL_Renderer* renderer;
     int play_area_x;
     int play_area_width;
+    int screen_height;
 
     EnemyBulletManager* bullet_manager;
 
@@ -73,7 +74,7 @@ private:
 public:
     EnemyManager();
 
-    void setupEnemies(SDL_Renderer* renderer, int play_x, int play_width);
+    void setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h);
     void update(float dt);
     void draw();
     void reset();

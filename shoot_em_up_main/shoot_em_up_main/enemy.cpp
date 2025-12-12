@@ -176,16 +176,17 @@ const SDL_FRect& Enemy::getRect() const {
 // ---------------- EnemyManager ----------------
 EnemyManager::EnemyManager()
     : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false),
-    renderer(nullptr), play_area_x(0), play_area_width(0), bullet_manager(nullptr) {
+    renderer(nullptr), play_area_x(0), play_area_width(0), bullet_manager(nullptr), screen_height(0) {
 }
 
-void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width) {
+void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h) {
     if (!renderer || play_width <= 0) return;
 
     // Store renderer and play area info for later use
     this->renderer = renderer;
     this->play_area_x = play_x;
     this->play_area_width = play_width;
+    this->screen_height = screen_h;
     enemies.clear(); // Remove any existing enemies
 
     // Helper lambda function to create and add enemies
@@ -243,7 +244,7 @@ void EnemyManager::draw() {
 //Resets the level by recreating all enemies
 void EnemyManager::reset() {
     if (renderer) {
-        setupEnemies(renderer, play_area_x, play_area_width);
+        setupEnemies(renderer, play_area_x, play_area_width, screen_height);
     }
 }
 
@@ -253,7 +254,7 @@ bool EnemyManager::allDestroyed() const {
     if (!all_spawned) return false; // Can't win if enemies aren't all spawned yet
     // Check if any enemy is still alive
     for (const auto& enemy : enemies) {
-        if (enemy.isAlive()) return false;
+        if (enemy.isAlive() && !enemy.isOffScreen(screen_height)) return false;
     }
     return true; // All enemies are dead - player wins!
 }

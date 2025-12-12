@@ -84,7 +84,7 @@ void Game::setupGameObjects() {
     bulletManager = new BulletManager(100, 0.1f);
     enemyBulletManager = new EnemyBulletManager(200, 0.5f);
     enemyManager = new EnemyManager();
-    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth);
+    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
     enemyManager->setBulletManager(enemyBulletManager);
     gameState = new GameState();
     gameMenu = new Menu(renderer, screenWidth, screenHeight);
@@ -180,7 +180,7 @@ void Game::handleEvents(){
 }
 void Game::update(float dt) {
     if (gameState->isActive()) {
-        const bool* keys = SDL_GetKeyboardState(NULL);
+        const bool* keys = SDL_GetKeyboardState(nullptr);
         player->update(keys, dt);
 
         if (keys[SDL_SCANCODE_SPACE]) {
@@ -303,7 +303,7 @@ void Game::resetGame() {
     delete bulletManager;
     bulletManager = new BulletManager(100, 0.1f);
 
-    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth);
+    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
     enemyManager->setBulletManager(enemyBulletManager);
 
     gameState->reset();
