@@ -116,6 +116,7 @@ void Enemy::update(float dt) {
             move_right = false;
         }
     }
+
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {
@@ -170,10 +171,12 @@ const SDL_FRect& Enemy::getRect() const {
     return rect;
 }
 
+
+
 // ---------------- EnemyManager ----------------
 EnemyManager::EnemyManager()
     : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false),
-    renderer(nullptr), play_area_x(0), play_area_width(0) {
+    renderer(nullptr), play_area_x(0), play_area_width(0), bullet_manager(nullptr) {
 }
 
 void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width) {
@@ -233,6 +236,7 @@ void EnemyManager::draw() {
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].draw(renderer);
     }
+
 }
 
 
@@ -253,6 +257,37 @@ bool EnemyManager::allDestroyed() const {
     }
     return true; // All enemies are dead - player wins!
 }
+
+void EnemyManager::setBulletManager(EnemyBulletManager* manager) {
+    bullet_manager = manager;
+}
+
+void EnemyManager::shootFromRandomEnemy() {
+    if (!bullet_manager) return;
+
+    // Collect all alive enemies that are visible on screen
+    std::vector<Enemy*> alive_enemies;
+    for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
+        if (enemies[i].isAlive() && enemies[i].rect.y >= 0) {
+            alive_enemies.push_back(&enemies[i]);
+        }
+    }
+
+    // If no alive enemies, can't shoot
+    if (alive_enemies.empty()) return;
+
+    // Pick a random enemy
+    int random_index = rand() % alive_enemies.size();
+    Enemy* shooter = alive_enemies[random_index];
+
+    // Calculate bullet spawn position (center-bottom of enemy)
+    float bullet_x = shooter->rect.x + shooter->rect.w / 2.0f;
+    float bullet_y = shooter->rect.y + shooter->rect.h;
+
+    // Shoot!
+    bullet_manager->shoot(bullet_x, bullet_y);
+}
+
 
 //Provides access to the enemy vector for collision detection
  

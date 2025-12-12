@@ -11,7 +11,7 @@ Entity::Entity()
 
 Entity::Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer)
     : speed(speed_), screen_width(800), screen_height(600), sprite(nullptr),
-    health(1), max_health(1), invulnerable_timer(0.0f), offset_x(0)
+    health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0)
 {
     rect.x = x;
     rect.y = y;

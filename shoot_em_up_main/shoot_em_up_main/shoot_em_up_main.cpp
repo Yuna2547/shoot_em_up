@@ -12,11 +12,15 @@ bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) {
     return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
 }
 
-void resetGame(Entity& player, float initial_x, float initial_y, BulletManager& bulletManager, 
-    EnemyManager& enemyManager, GameState& gameState, SDL_Renderer* renderer, int play_x, int play_width) {
+void resetGame(Entity& player, float initial_x, float initial_y,
+    BulletManager& bulletManager, EnemyBulletManager& enemyBulletManager, 
+    EnemyManager& enemyManager, GameState& gameState,
+    SDL_Renderer* renderer, int play_x, int play_width) {
+
     player.resetPosition(initial_x, initial_y);
     player.resetHealth();
-    bulletManager = BulletManager(100, 0.1f);
+    bulletManager.reset();
+    enemyBulletManager.reset();
     enemyManager.setupEnemies(renderer, play_x, play_width);
     gameState.reset();
 }
@@ -133,10 +137,13 @@ int main(int argc, char* argv[]) {
 
     // Bullet manager
     BulletManager bulletManager(100, 0.1f);
+    EnemyBulletManager enemyBulletManager(200, 0.5f);  //max nb of bullets + speed
 
     // Enemy manager
     EnemyManager enemyManager;
     enemyManager.setupEnemies(renderer, play_x, play_width);
+
+    enemyManager.setBulletManager(&enemyBulletManager);
 
     // Game state
     GameState gameState;
@@ -162,7 +169,7 @@ int main(int argc, char* argv[]) {
 
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_R) {
-                    resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyManager, gameState, renderer, play_x, play_width);
+                    resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyBulletManager, enemyManager, gameState, renderer, play_x, play_width);
                 }
 
                 if (event.key.key == SDLK_ESCAPE) {
@@ -179,7 +186,7 @@ int main(int argc, char* argv[]) {
                 int menuResult = gameMenu.handleEvents(event);
                 if (menuResult == 1) {
                     if (gameState.isVictory() || gameState.isGameOver()) {
-                        resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyManager, gameState, renderer, play_x, play_width);
+                        resetGame(player, initial_player_x, initial_player_y, bulletManager, enemyBulletManager, enemyManager, gameState, renderer, play_x, play_width);
                     }
                     else {
                         gameState.setPaused(false);
@@ -204,7 +211,16 @@ int main(int argc, char* argv[]) {
 
             bulletManager.update(dt);
             bulletManager.updateBullets(dt, screen_h);
+            
             enemyManager.update(dt);
+            enemyBulletManager.update(dt);  // Update cooldown timer
+
+            // Shoot from a random enemy if cooldown allows
+            if (enemyBulletManager.canShoot()) {
+                enemyManager.shootFromRandomEnemy();
+            }
+
+            enemyBulletManager.updateBullets(dt, screen_h);
 
             // Check for enemies that went offscreen - player loses HP
             for (auto& enemy : enemyManager.getEnemies()) {
@@ -231,8 +247,18 @@ int main(int argc, char* argv[]) {
             const SDL_FRect& playerRect = player.getRect();
             for (auto& enemy : enemyManager.getEnemies()) {
                 if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
-                    player.takeDamage(1);
+                    player.takeDamage(3);
                     enemy.setCollided();
+                }
+            }
+
+            // Enemy bullet <-> Player collisions
+            for (auto& enemyBullet : enemyBulletManager.getBullets()) {
+                if (!enemyBullet.active) continue;
+
+                if (checkCollision(playerRect, enemyBullet.getRect())) {
+                    player.takeDamage(2);
+                    enemyBullet.deactivate();
                 }
             }
 
@@ -262,6 +288,8 @@ int main(int argc, char* argv[]) {
         enemyManager.draw();
         player.draw(renderer);
         bulletManager.draw(renderer);
+
+        enemyBulletManager.draw(renderer);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(play_x), static_cast<float>(screen_h) };
