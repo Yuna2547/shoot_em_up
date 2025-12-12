@@ -20,6 +20,7 @@ private:
 
 	Entity* player;
 	BulletManager* bulletManager;
+	EnemyBulletManager* enemyBulletManager;
 	EnemyManager* enemyManager;
 	GameState* gameState;
 	Menu* gameMenu;
@@ -41,6 +42,7 @@ private:
 	void handleCollisions();
 	void checkBulletEnemyCollisions();
 	void checkPlayerEnemyCollisions();
+	void checkPlayerBulletCollisions();
 	void checkOffscreenEnemies();
 	bool checkCollision(const SDL_FRect& a, const SDL_FRect& b);
 	void resetGame();

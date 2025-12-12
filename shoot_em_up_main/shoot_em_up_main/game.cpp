@@ -2,7 +2,7 @@
 
 
 Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0),
-    playAreaWidth(0), player(nullptr), bulletManager(nullptr), enemyManager(nullptr), gameState(nullptr), 
+    playAreaWidth(0), player(nullptr), bulletManager(nullptr), enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr),
     gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
     
 }
@@ -82,8 +82,10 @@ void Game::setupGameObjects() {
     player->setScreenBounds(playAreaWidth, screenHeight);
     player->setOffsetX(playAreaX);
     bulletManager = new BulletManager(100, 0.1f);
+    enemyBulletManager = new EnemyBulletManager(200, 0.5f);
     enemyManager = new EnemyManager();
     enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth);
+    enemyManager->setBulletManager(enemyBulletManager);
     gameState = new GameState();
     gameMenu = new Menu(renderer, screenWidth, screenHeight);
 }
@@ -190,6 +192,8 @@ void Game::update(float dt) {
         bulletManager->update(dt);
         bulletManager->updateBullets(dt, screenHeight);
         enemyManager->update(dt);
+        enemyBulletManager->update(dt);
+        enemyBulletManager->updateBullets(dt, screenHeight);
 
         handleCollisions();
 
@@ -214,6 +218,7 @@ void Game::render() {
     enemyManager->draw();
     player->draw(renderer);
     bulletManager->draw(renderer);
+    enemyBulletManager->draw(renderer);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(playAreaX), static_cast<float>(screenHeight) };
@@ -235,6 +240,7 @@ void Game::handleCollisions() {
     checkOffscreenEnemies();
     checkBulletEnemyCollisions();
     checkPlayerEnemyCollisions();
+    checkPlayerBulletCollisions();
 }
 
 void Game::checkBulletEnemyCollisions() {
@@ -255,8 +261,24 @@ void Game::checkPlayerEnemyCollisions(){
     const SDL_FRect& playerRect = player->getRect();
     for (auto& enemy : enemyManager->getEnemies()) {
         if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
-            player->takeDamage(1);
+            player->takeDamage(3);
             enemy.setCollided();
+        }
+    }
+    if (enemyBulletManager->canShoot()) {
+        enemyManager->shootFromRandomEnemy();
+    }
+}
+
+void Game::checkPlayerBulletCollisions(){
+    const SDL_FRect& playerRect = player->getRect();
+    for (auto& enemyBullet : enemyBulletManager->getBullets()) {
+        if (!enemyBullet.active) {
+            continue;
+        }
+        if (checkCollision(playerRect, enemyBullet.getRect())) {
+            player->takeDamage(2);
+            enemyBullet.deactivate();
         }
     }
 }
@@ -282,6 +304,7 @@ void Game::resetGame() {
     bulletManager = new BulletManager(100, 0.1f);
 
     enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth);
+    enemyManager->setBulletManager(enemyBulletManager);
 
     gameState->reset();
 }
