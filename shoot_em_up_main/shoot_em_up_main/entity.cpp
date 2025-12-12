@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "Sprite.h"
+#include "enemy.h"
 
 Entity::Entity()
     : speed(0), screen_width(0), screen_height(0), sprite(nullptr),
@@ -66,10 +67,10 @@ void Entity::update(const bool* keys, float dt) {
     }
 
     // Movement
-    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) rect.y -= speed * dt;
-    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) rect.y += speed * dt;
-    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) rect.x -= speed * dt;
-    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) rect.x += speed * dt;
+    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) rect.y -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) rect.y += speed * dt + 1;
+    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) rect.x -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) rect.x += speed * dt + 1;
 
     // Clamp to play area
     if (rect.x < static_cast<float>(offset_x)) rect.x = static_cast<float>(offset_x);
@@ -124,7 +125,7 @@ void Entity::draw(SDL_Renderer* renderer) const {
     float bar_width = rect.w;
     float bar_height = 8.0f;
     float bar_x = rect.x;
-    float bar_y = rect.y + rect.h + 5.0f;
+    float bar_y = rect.y - 20.0f;
 
     SDL_FRect bg_rect = { bar_x, bar_y, bar_width, bar_height };
     SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
@@ -143,7 +144,7 @@ void Entity::takeDamage(int amount) {
     if (!isInvulnerable()) {
         health -= amount;
         if (health < 0) health = 0;
-        invulnerable_timer = 1.0f; // 1 second invulnerability
+        invulnerable_timer = 0.5f; // 0.5 second invulnerability
     }
 }
 

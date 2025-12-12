@@ -138,6 +138,7 @@
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="gamestate.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="shoot_em_up_main.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="bullet.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="entity.h" />
+    <ClInclude Include="gamestate.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="Sprite.h" />
   </ItemGroup>

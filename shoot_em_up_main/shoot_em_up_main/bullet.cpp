@@ -4,7 +4,7 @@
 // ---------------- Bullet ----------------
 Bullet::Bullet() {
     rect = { 0, 0, 5.0f, 15.0f };
-    speed = 400.0f;
+    speed = 1000.0f;
     active = false;
 }
 
@@ -26,7 +26,7 @@ void Bullet::draw(SDL_Renderer* renderer) const {
     SDL_RenderFillRect(renderer, &rect);
 
     // Optional: outline for clarity
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 234, 239, 44, 1);
     SDL_RenderRect(renderer, &rect);
 }
 
