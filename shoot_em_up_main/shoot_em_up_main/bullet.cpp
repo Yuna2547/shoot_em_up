@@ -22,11 +22,10 @@ void Bullet::update(float dt, int screen_height) {
 void Bullet::draw(SDL_Renderer* renderer) const {
     if (!renderer || !active) return;
 
-    // SDL3: Fill with SDL_FRect directly
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     SDL_RenderFillRect(renderer, &rect);
 
-    // Optional: outline for clarity
-    SDL_SetRenderDrawColor(renderer, 234, 239, 44, 1);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderRect(renderer, &rect);
 }
 
@@ -85,6 +84,135 @@ void BulletManager::draw(SDL_Renderer* renderer) {
     }
 }
 
+void BulletManager::reset() {
+    cooldown_timer = 0.0f;
+    for (auto& bullet : bullets) {
+        bullet.deactivate(); // turn off all bullets
+    }
+}
+
+
+
 std::vector<Bullet>& BulletManager::getBullets() {
+    return bullets;
+}
+
+// ---------------- EnemyBullet ----------------
+EnemyBullet::EnemyBullet() {
+    rect = { 0, 0, 10.0f, 10.f };
+    speed = 300.0f;
+    active = false;
+
+}
+
+void EnemyBullet::update(float dt, int screen_height) {
+    if (active) {
+        rect.y += speed * dt; // Move down
+
+        if (rect.y > screen_height) {
+            active = false;
+        }
+    }
+}
+
+void EnemyBullet::draw(SDL_Renderer* renderer) const {
+    if (!renderer || !active) {
+        return;
+    }
+    
+    //Calc the center of bullet
+    int centerX = static_cast<int>(rect.x + rect.w / 2.0f);
+    int centerY = static_cast<int>(rect.y + rect.h / 2.0f); 
+    int radius = static_cast<int>(rect.w / 2.0f);
+
+    // Draw filled circle (green)
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    for (int y = -radius; y <= radius; y++) {
+        for (int x = -radius; x <= radius; x++) {
+            if (x * x + y * y <= radius * radius) {
+                SDL_RenderPoint(renderer, centerX + x, centerY + y);
+            }
+        }
+    }
+
+    // Draw dark green outline
+    SDL_SetRenderDrawColor(renderer, 0, 128, 0, 255);
+    for (int angle = 0; angle < 360; angle += 5) {
+        float rad = angle * 3.14159f / 180.0f;
+        int x = centerX + static_cast<int>(radius * cos(rad));
+        int y = centerY + static_cast<int>(radius * sin(rad));
+        SDL_RenderPoint(renderer, x, y);
+    }
+}
+
+void EnemyBullet::deactivate() {
+    active = false;
+}
+
+
+const SDL_FRect& EnemyBullet::getRect() const {
+    return rect;
+}
+
+
+
+// ---------------- EnemyBulletManager ----------------
+EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown)
+    : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f) {
+    bullets.resize(max_bullets);
+}
+
+void EnemyBulletManager::update(float dt) {
+    if (cooldown_timer > 0.0f) {
+        cooldown_timer -= dt;
+        if (cooldown_timer < 0.0f) {
+            cooldown_timer = 0.0f;
+        }
+    }
+}
+
+bool EnemyBulletManager::canShoot() const {
+    return cooldown_timer <= 0.0f;
+}
+
+void EnemyBulletManager::shoot(float x, float y) {
+    // Check if cooldown allows shooting
+    if (cooldown_timer > 0.0f) return;
+
+    for (auto& bullet : bullets) {
+        if (!bullet.active) {
+            bullet.rect.x = x - bullet.rect.w / 2.0f;
+            bullet.rect.y = y;
+            bullet.active = true;
+
+            cooldown_timer = shoot_cooldown;
+            break;
+        }
+    }
+}
+
+void EnemyBulletManager::updateBullets(float dt, int screen_height) {
+    for (auto& bullet : bullets) {
+        bullet.update(dt, screen_height);
+    }
+}
+
+void EnemyBulletManager::draw(SDL_Renderer* renderer) {
+    if (!renderer) {
+        return;
+    }
+
+    for (const auto& bullet : bullets) {
+        bullet.draw(renderer);
+    }
+}
+
+void EnemyBulletManager::reset() {
+    for (auto& bullet : bullets) {
+        bullet.deactivate();
+    }
+}
+
+std::vector<EnemyBullet>& EnemyBulletManager::getBullets() {
     return bullets;
 }

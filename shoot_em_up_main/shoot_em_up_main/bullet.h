@@ -30,7 +30,45 @@ public:
     void update(float dt);
     void shoot(float x, float y);
     void updateBullets(float dt, int screen_height);
+    void reset();
     void draw(SDL_Renderer* renderer);
 
     std::vector<Bullet>& getBullets();
+};
+
+class EnemyBullet {
+public:
+    SDL_FRect rect;
+    float speed;
+    bool active;
+
+    EnemyBullet();
+
+    void update(float dt, int screen_height);
+    void draw(SDL_Renderer* renderer) const;
+    void deactivate();
+    const SDL_FRect& getRect() const;
+};
+
+class EnemyBulletManager {
+
+private:
+    std::vector<EnemyBullet> bullets;
+    int max_bullets;
+    float shoot_cooldown;
+    float cooldown_timer;
+
+public:
+    EnemyBulletManager(int maxBullets, float cooldown = 0.5f);
+
+    void update(float dt);
+
+    bool canShoot() const;
+
+    void shoot(float x, float y);
+    void updateBullets(float dt, int screen_height);
+    void draw(SDL_Renderer* render);
+    void reset();
+
+    std::vector<EnemyBullet>& getBullets();
 };

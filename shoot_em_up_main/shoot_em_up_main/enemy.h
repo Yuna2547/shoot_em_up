@@ -3,6 +3,9 @@
 #include <SDL3/SDL.h>
 #include <vector>
 #include "Sprite.h"
+#include "bullet.h"
+
+class EnemyBulletManager;
 
 enum class EnemyType {
     tomato,
@@ -19,6 +22,7 @@ public:
     int health;
     int max_health;
     Sprite* sprite;
+
 
     // Horizontal movement
     bool horizontal;
@@ -50,6 +54,7 @@ public:
     void setCollided();
     const SDL_FRect& getRect() const;
     bool isOffScreen(int screen_height) const;
+
 };
 
 class EnemyManager {
@@ -62,6 +67,9 @@ private:
     int play_area_x;
     int play_area_width;
 
+    EnemyBulletManager* bullet_manager;
+
+
 public:
     EnemyManager();
 
@@ -70,6 +78,10 @@ public:
     void draw();
     void reset();
     bool allDestroyed() const;
+
+    //shooting
+    void setBulletManager(EnemyBulletManager* manager);
+    void shootFromRandomEnemy();
 
     std::vector<Enemy>& getEnemies();
 };
