@@ -60,25 +60,32 @@ void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer
 void Entity::update(const bool* keys, float dt) {
     if (!keys) return;
 
-    // Invulnerability timer
+  
     if (invulnerable_timer > 0.0f) {
         invulnerable_timer -= dt;
-        if (invulnerable_timer < 0.0f) invulnerable_timer = 0.0f;
+        if (invulnerable_timer < 0.0f) 
+            invulnerable_timer = 0.0f;
     }
 
-    // Movement
-    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) rect.y -= speed * dt + 1;
-    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) rect.y += speed * dt + 1;
-    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) rect.x -= speed * dt + 1;
-    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) rect.x += speed * dt + 1;
+   
+    if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) 
+        rect.y -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) 
+        rect.y += speed * dt + 1;
+    if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) 
+        rect.x -= speed * dt + 1;
+    if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) 
+        rect.x += speed * dt + 1;
 
-    // Clamp to play area
-    if (rect.x < static_cast<float>(offset_x)) rect.x = static_cast<float>(offset_x);
+    if (rect.x < static_cast<float>(offset_x)) 
+        rect.x = static_cast<float>(offset_x);
     if (rect.x + rect.w > static_cast<float>(offset_x + screen_width))
         rect.x = static_cast<float>(offset_x + screen_width) - rect.w;
-    if (rect.y < 0.0f) rect.y = 0.0f;
+    if (rect.y < 0.0f) 
+        rect.y = 0.0f;
     if (rect.y + rect.h > static_cast<float>(screen_height))
         rect.y = static_cast<float>(screen_height) - rect.h;
+    
 }
 
 void Entity::setScreenBounds(int width, int height) {
@@ -93,35 +100,26 @@ void Entity::setOffsetX(int offset) {
 void Entity::draw(SDL_Renderer* renderer) const {
     if (!renderer) return;
 
-    // Draw sprite if available
     if (sprite && sprite->IsValid()) {
         SDL_FRect dstRect = rect;
 
-        // Flicker effect when invulnerable
-        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0)) {
+        
+        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0))
             SDL_SetTextureAlphaMod(sprite->GetTexture(), 128);
-        }
-        else {
+        else 
             SDL_SetTextureAlphaMod(sprite->GetTexture(), 255);
-        }
 
         sprite->Draw(renderer, &dstRect);
-
-        // Reset alpha
         SDL_SetTextureAlphaMod(sprite->GetTexture(), 255);
     }
     else {
-        // Fallback: rectangle if no sprite
-        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0)) {
+        if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0)) 
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        }
-        else {
+        else 
             SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        }
         SDL_RenderFillRect(renderer, &rect);
     }
 
-    // Health bar below the entity
     float bar_width = rect.w;
     float bar_height = 8.0f;
     float bar_x = rect.x;
@@ -144,7 +142,7 @@ void Entity::takeDamage(int amount) {
     if (!isInvulnerable()) {
         health -= amount;
         if (health < 0) health = 0;
-        invulnerable_timer = 0.5f; // 0.5 second invulnerability
+        invulnerable_timer = 0.5f;
     }
 }
 

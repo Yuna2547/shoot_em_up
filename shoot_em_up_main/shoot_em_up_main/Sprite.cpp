@@ -5,22 +5,22 @@
 Sprite::Sprite(SDL_Renderer* renderer, const char* path)
     : texture(nullptr), width(0), height(0)
 {
-    if (!renderer || !path) return;
+    if (!renderer || !path) 
+        return;
 
     SDL_Surface* surface = IMG_Load(path);
     if (!surface) {
-        SDL_Log("Error loading image %s: %s", path, SDL_GetError());
+        SDL_Log("Error loading image from ",path, " : ",  SDL_GetError());
         return;
     }
 
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
-        SDL_Log("Error creating texture from %s: %s", path, SDL_GetError());
+        SDL_Log("Error creating texture from ",path, " : ",  SDL_GetError());
         SDL_DestroySurface(surface);
         return;
     }
 
-    // Keep pixel art crisp when scaled
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
     width = surface->w;
@@ -53,8 +53,7 @@ SDL_Texture* Sprite::GetTexture() const {
 }
 
 void Sprite::Draw(SDL_Renderer* renderer, const SDL_FRect* dstRect) const {
-    if (!renderer || !texture || !dstRect) return;
-
-    // SDL3 unified API: SDL_RenderTexture accepts SDL_FRect directly
+    if (!renderer || !texture || !dstRect) 
+        return;
     SDL_RenderTexture(renderer, texture, nullptr, dstRect);
 }

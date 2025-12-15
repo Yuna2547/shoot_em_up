@@ -51,8 +51,6 @@ public:
     void setVictoryMode(bool isVictory);
 
     void setGameOverMode(bool isGameOver);
-    // Set game over menu
-    void setGameOver(bool isGameOver);
 
     // Update window dimensions and recalculate positions
     void setWindowSize(int width, int height);

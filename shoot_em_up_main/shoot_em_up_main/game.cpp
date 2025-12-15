@@ -1,6 +1,5 @@
 #include "game.h"
 
-
 Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0),
     playAreaWidth(0), player(nullptr), bulletManager(nullptr), enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr),
     gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
@@ -12,13 +11,11 @@ Game::~Game() {
 }
 
 bool Game::initialize() {
-    if (!initSDL() || !createWindow() || !createRenderer()) {
+    if (!initSDL() || !createWindow() || !createRenderer()) 
         return false;
-    }
     calculatePlayArea();
-    if (!loadResources()) {
+    if (!loadResources()) 
         return false;
-    }
     setupGameObjects();
     return true;
 }
@@ -65,29 +62,30 @@ bool Game::loadResources()
     if (bgSurface) {
         bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
         SDL_DestroySurface(bgSurface);
-        if (!bgTexture) {
+        if (!bgTexture) 
             SDL_Log("Warning: could not create background texture: ", SDL_GetError());
-        }
     }
-    else {
+    else 
         SDL_Log("Warning: could not load background image: ", SDL_GetError());
-    }
     return true;
 }
 
 void Game::setupGameObjects() {
     initialPlayerX = playAreaX + playAreaWidth / 2.0f - 50.0f;
     initialPlayerY = screenHeight - 150.0f;
+
     player = new Entity(initialPlayerX, initialPlayerY, 100.0f, 130.0f, 200.0f, renderer);
-    player->setScreenBounds(playAreaWidth, screenHeight);
-    player->setOffsetX(playAreaX);
     bulletManager = new BulletManager(100, 0.1f);
     enemyBulletManager = new EnemyBulletManager(200, 0.5f);
     enemyManager = new EnemyManager();
-    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
-    enemyManager->setBulletManager(enemyBulletManager);
     gameState = new GameState();
     gameMenu = new Menu(renderer, screenWidth, screenHeight);
+    
+    player->setScreenBounds(playAreaWidth, screenHeight);
+    player->setOffsetX(playAreaX);
+    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
+    enemyManager->setBulletManager(enemyBulletManager);
+    
 }
 
 bool Game::showMenu() {
@@ -100,9 +98,8 @@ bool Game::showMenu() {
         SDL_GetMouseState(&mouseX, &mouseY);
         gameMenu->update(mouseX, mouseY);
         while (SDL_PollEvent(&menuEvent)) {
-            if (menuEvent.type == SDL_EVENT_QUIT) {
+            if (menuEvent.type == SDL_EVENT_QUIT) 
                 inMenu = false;
-            }
             if (menuEvent.type == SDL_EVENT_WINDOW_RESIZED) {
                 SDL_GetWindowSize(window, &screenWidth, &screenHeight);
                 gameMenu->setWindowSize(screenWidth, screenHeight);
@@ -112,9 +109,8 @@ bool Game::showMenu() {
                 startGame = true;
                 inMenu = false;
             }
-            else if (menuResult == 2) {
+            else if (menuResult == 2) 
                 inMenu = false;
-            }
         }
         gameMenu->draw();
         SDL_Delay(16);
@@ -143,14 +139,12 @@ void Game::handleEvents(){
 
     // ---- Event handling (only handle events here) ----
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
+        if (event.type == SDL_EVENT_QUIT) 
             running = false;
-        }
 
         if (event.type == SDL_EVENT_KEY_DOWN) {
-            if (event.key.key == SDLK_R) {
+            if (event.key.key == SDLK_R) 
                 resetGame();
-            }
 
             if (event.key.key == SDLK_ESCAPE) {
                 if (!gameState->isGameOver() && !gameState->isVictory() && !gameState->isGameOver()) {
@@ -165,19 +159,17 @@ void Game::handleEvents(){
         if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) {
             int menuResult = gameMenu->handleEvents(event);
             if (menuResult == 1) {
-                if (gameState->isVictory() || gameState->isGameOver()) {
+                if (gameState->isVictory() || gameState->isGameOver()) 
                     resetGame();
-                }
-                else {
+                else 
                     gameState->setPaused(false);
-                }
             }
-            else if (menuResult == 2) {
+            else if (menuResult == 2) 
                 running = false;
-            }
         }
     }
 }
+
 void Game::update(float dt) {
     if (gameState->isActive()) {
         const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -197,13 +189,11 @@ void Game::update(float dt) {
 
         handleCollisions();
 
-        if (player->getHealth() <= 0) {
+        if (player->getHealth() <= 0) 
             handleGameOver();
-        }
 
-        if (enemyManager->allDestroyed()) {
+        if (enemyManager->allDestroyed()) 
             handleVictory();
-        }
     }
 }
 
@@ -211,9 +201,8 @@ void Game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    if (bgTexture) {
+    if (bgTexture) 
         SDL_RenderTexture(renderer, bgTexture, nullptr, nullptr);
-    }
 
     enemyManager->draw();
     player->draw(renderer);
@@ -224,14 +213,11 @@ void Game::render() {
     SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(playAreaX), static_cast<float>(screenHeight) };
     SDL_RenderFillRect(renderer, &leftBar);
 
-    SDL_FRect rightBar = { static_cast<float>(playAreaX + playAreaWidth), 0.0f,
-                          static_cast<float>(screenWidth - playAreaX - playAreaWidth),
-                          static_cast<float>(screenHeight) };
+    SDL_FRect rightBar = { static_cast<float>(playAreaX + playAreaWidth), 0.0f, static_cast<float>(screenWidth - playAreaX - playAreaWidth), static_cast<float>(screenHeight) };
     SDL_RenderFillRect(renderer, &rightBar);
 
-    if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) {
+    if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) 
         gameMenu->draw();
-    }
 
     SDL_RenderPresent(renderer);
 }
@@ -245,9 +231,11 @@ void Game::handleCollisions() {
 
 void Game::checkBulletEnemyCollisions() {
     for (auto& bullet : bulletManager->getBullets()) {
-        if (!bullet.active) continue;
+        if (!bullet.active)
+            continue;
         for (auto& enemy : enemyManager->getEnemies()) {
-            if (!enemy.isAlive()) continue;
+            if (!enemy.isAlive()) 
+                continue;
             if (checkCollision(bullet.getRect(), enemy.getRect())) {
                 enemy.takeDamage(2);
                 bullet.deactivate();
@@ -265,17 +253,15 @@ void Game::checkPlayerEnemyCollisions(){
             enemy.setCollided();
         }
     }
-    if (enemyBulletManager->canShoot()) {
+    if (enemyBulletManager->canShoot()) 
         enemyManager->shootFromRandomEnemy();
-    }
 }
 
 void Game::checkPlayerBulletCollisions(){
     const SDL_FRect& playerRect = player->getRect();
     for (auto& enemyBullet : enemyBulletManager->getBullets()) {
-        if (!enemyBullet.active) {
+        if (!enemyBullet.active) 
             continue;
-        }
         if (checkCollision(playerRect, enemyBullet.getRect())) {
             player->takeDamage(2);
             enemyBullet.deactivate();
@@ -341,9 +327,12 @@ void Game::cleanup() {
     delete gameState;
     delete gameMenu;
 
-    if (bgTexture) SDL_DestroyTexture(bgTexture);
-    if (renderer) SDL_DestroyRenderer(renderer);
-    if (window) SDL_DestroyWindow(window);
+    if (bgTexture) 
+        SDL_DestroyTexture(bgTexture);
+    if (renderer) 
+        SDL_DestroyRenderer(renderer);
+    if (window) 
+        SDL_DestroyWindow(window);
 
     SDL_Quit();
 }

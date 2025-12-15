@@ -12,16 +12,16 @@ bool GameState::isVictory() const{
     return victory;
 }
 
-void GameState::setPaused(bool p){
-    paused = p;
+void GameState::setPaused(bool pausedGame){
+    paused = pausedGame;
 }
 
-void GameState::setGameOver(bool go){
-    game_over = go;
+void GameState::setGameOver(bool gameOverGame){
+    game_over = gameOverGame;
 }
 
-void GameState::setVictory(bool v){
-    victory = v;
+void GameState::setVictory(bool victoryGame){
+    victory = victoryGame;
 }
 
 

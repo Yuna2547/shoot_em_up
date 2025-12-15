@@ -23,8 +23,6 @@ public:
     int max_health;
     Sprite* sprite;
 
-
-    // Horizontal movement
     bool horizontal;
     float hspeed;
     int min_x;
@@ -35,11 +33,8 @@ public:
         EnemyType type, SDL_Renderer* renderer);
     ~Enemy();
 
-    // Move constructor and assignment
     Enemy(Enemy&& other) noexcept;
     Enemy& operator=(Enemy&& other) noexcept;
-
-    // Delete copy constructor and assignment
     Enemy(const Enemy&) = delete;
     Enemy& operator=(const Enemy&) = delete;
 
@@ -80,7 +75,6 @@ public:
     void reset();
     bool allDestroyed() const;
 
-    //shooting
     void setBulletManager(EnemyBulletManager* manager);
     void shootFromRandomEnemy();
 
