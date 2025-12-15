@@ -97,8 +97,8 @@ std::vector<Bullet>& BulletManager::getBullets() {
 
 
 EnemyBullet::EnemyBullet() {
-    rect = { 0, 0, 10.0f, 10.f };
-    speed = 300.0f;
+    rect = { 0, 0, 15.0f, 15.f };
+    speed = 500.0f;
     active = false;
 
 }
