@@ -29,8 +29,7 @@ public:
     int max_x;
     bool move_right;
 
-    Enemy(float x, float start_y, float w, float h, float speed,
-        EnemyType type, SDL_Renderer* renderer);
+    Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer);
     ~Enemy();
 
     Enemy(Enemy&& other) noexcept;
