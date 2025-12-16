@@ -1,11 +1,7 @@
 #include "enemy.h"
 
-Enemy::Enemy(float x, float start_y, float w, float h, float speed,
-    EnemyType type, SDL_Renderer* renderer)
-    : speed(speed), type(type), has_collided(false),
-    health(10), max_health(10), sprite(nullptr),
-    horizontal(false), hspeed(0.0f), move_right(true),
-    min_x(0), max_x(0) {
+Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
+    : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), move_right(true), min_x(0), max_x(0) {
 
     rect.x = x;
     rect.y = start_y;
@@ -39,11 +35,8 @@ Enemy::~Enemy() {
 }
 
 Enemy::Enemy(Enemy&& other) noexcept
-    : rect(other.rect), speed(other.speed), type(other.type),
-    has_collided(other.has_collided), sprite(other.sprite),
-    health(other.health), max_health(other.max_health),
-    horizontal(other.horizontal), hspeed(other.hspeed),
-    min_x(other.min_x), max_x(other.max_x), move_right(other.move_right) {
+    : rect(other.rect), speed(other.speed), type(other.type), has_collided(other.has_collided), sprite(other.sprite), health(other.health), max_health(other.max_health),
+    horizontal(other.horizontal), hspeed(other.hspeed), min_x(other.min_x), max_x(other.max_x), move_right(other.move_right) {
     other.sprite = nullptr;    // Prevent the moved-from object from deleting the sprite
 }
 
@@ -149,6 +142,14 @@ void Enemy::takeDamage(int amount) {
     health -= amount;
     if (health < 0) 
         health = 0;
+}
+
+bool Enemy::loadEnemiesFromFile(const char* filename)
+{
+    std::ifstream File(filename);
+    std::string lineFromFile;
+
+    return false;
 }
 
 bool Enemy::isAlive() const {

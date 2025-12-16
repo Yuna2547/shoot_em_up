@@ -4,8 +4,9 @@
 #include <vector>
 #include "Sprite.h"
 #include "bullet.h"
+#include <iostream>
 #include <fstream>
-#include <sstream>
+#include <string>
 
 class EnemyBulletManager;
 
@@ -46,6 +47,7 @@ public:
     void update(float dt);
     void draw(SDL_Renderer* renderer) const;
     void takeDamage(int amount);
+    bool loadEnemiesFromFile(const char* filename);
 
     bool isAlive() const;
     bool hasCollided() const;
