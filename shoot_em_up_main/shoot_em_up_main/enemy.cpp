@@ -69,6 +69,17 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
     return *this;
 }
 
+EnemyType Enemy::parseEnemyType(const std::string& typeStr)
+{
+    if (typeStr == "tomato") 
+        return EnemyType::tomato;
+    if (typeStr == "broccoli") 
+        return EnemyType::broccoli;
+    if (typeStr == "carrot") 
+        return EnemyType::carrot;
+    return EnemyType();
+}
+
 void Enemy::setHorizontalBounds(int minX, int maxX) {
     min_x = minX;
     max_x = maxX;
@@ -188,12 +199,12 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
     addEnemy(play_width -100.0f, -50.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
     addEnemy(play_width - 250.0f, -500.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
 
-    addEnemy(play_width + 100.0f, -200.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
+    addEnemy(play_width - 100.0f, -200.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
     addEnemy(play_width - 150.0f, -550.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
-    addEnemy(play_width + 500.0f, -400.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
+    addEnemy(play_width - 100.0f, -400.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
 
-    addEnemy(play_width + 200.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
-    addEnemy(play_width - 550.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
+    addEnemy(play_width - 200.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
+    addEnemy(play_width - 150.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
 
     next_enemy_index = enemies.size();
     all_spawned = true;
@@ -201,8 +212,9 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
 }
 
 void EnemyManager::update(float dt) {
-    for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) 
+    for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].update(dt);
+    }
 }
 
 void EnemyManager::draw() {

@@ -4,6 +4,8 @@
 #include <vector>
 #include "Sprite.h"
 #include "bullet.h"
+#include <fstream>
+#include <sstream>
 
 class EnemyBulletManager;
 
@@ -36,6 +38,8 @@ public:
     Enemy& operator=(Enemy&& other) noexcept;
     Enemy(const Enemy&) = delete;
     Enemy& operator=(const Enemy&) = delete;
+    EnemyType parseEnemyType(const std::string& typeStr);
+
 
     void setHorizontalBounds(int minX, int maxX);
     void setHorizontalMovement(bool enabled, float speed, int minX, int maxX);
