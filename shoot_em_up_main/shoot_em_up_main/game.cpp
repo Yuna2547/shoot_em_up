@@ -1,5 +1,8 @@
 #include "game.h"
 
+#include <format>
+#include <print>
+
 Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0),
     playAreaWidth(0), player(nullptr), bulletManager(nullptr), enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr),
     gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
@@ -80,6 +83,7 @@ void Game::setupGameObjects() {
     enemyManager = new EnemyManager();
     gameState = new GameState();
     gameMenu = new Menu(renderer, screenWidth, screenHeight);
+
     
     player->setScreenBounds(playAreaWidth, screenHeight);
     player->setOffsetX(playAreaX);
@@ -97,6 +101,7 @@ bool Game::showMenu() {
         float mouseX;
         float mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
+
         gameMenu->update(mouseX, mouseY);
         while (SDL_PollEvent(&menuEvent)) {
             if (menuEvent.type == SDL_EVENT_QUIT) 
@@ -114,6 +119,9 @@ bool Game::showMenu() {
                 inMenu = false;
         }
         gameMenu->draw();
+
+        SDL_RenderPresent(renderer);
+
         SDL_Delay(16);
     }
     return startGame;
@@ -129,6 +137,8 @@ void Game::run() {
         handleEvents();
         update(dt);
         render();
+
+        SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
 }
@@ -197,6 +207,12 @@ void Game::update(float dt) {
         if (enemyManager->allDestroyed()) 
             handleVictory();
     }
+    else if (gameState->isPaused())
+    {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        gameMenu->update(mx, my);
+    }
 }
 
 void Game::render() {
@@ -220,8 +236,6 @@ void Game::render() {
 
     if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) 
         gameMenu->draw();
-
-    SDL_RenderPresent(renderer);
 }
 
 void Game::handleCollisions() {
@@ -290,8 +304,10 @@ void Game::resetGame() {
     player->resetPosition(initialPlayerX, initialPlayerY);
     player->resetHealth();
 
+    delete enemyBulletManager;
     delete bulletManager;
     bulletManager = new BulletManager(100, 0.1f);
+    enemyBulletManager = new EnemyBulletManager(200, 0.5f); 
 
     enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
     enemyManager->setBulletManager(enemyBulletManager);

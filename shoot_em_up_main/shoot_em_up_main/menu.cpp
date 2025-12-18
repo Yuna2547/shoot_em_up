@@ -149,7 +149,6 @@ void Menu::updateButtonPositions() {
     playButton.rect = { centerX, startY, buttonWidth, buttonHeight };
     resumeButton.rect = { centerX, startY, buttonWidth, buttonHeight };
     replayButton.rect = { centerX, startY, buttonWidth, buttonHeight }; 
-
     quitButton.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
 }
 
@@ -303,6 +302,4 @@ void Menu::draw() {
         drawButton(playButton); 
 
     drawButton(quitButton);
-
-    SDL_RenderPresent(renderer);
 }
