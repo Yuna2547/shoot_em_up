@@ -76,7 +76,7 @@ void Game::setupGameObjects() {
     initialPlayerX = playAreaX + playAreaWidth / 2.0f - 50.0f;
     initialPlayerY = screenHeight - 150.0f;
 
-    player = new Entity(initialPlayerX, initialPlayerY, 100.0f, 130.0f, 200.0f, renderer);
+    player = new Entity(initialPlayerX, initialPlayerY, 80.0f, 100.0f, 200.0f, renderer);
     bulletManager = new BulletManager(100, 0.1f);
     enemyBulletManager = new EnemyBulletManager(200, 0.5f);
     enemyManager = new EnemyManager();
