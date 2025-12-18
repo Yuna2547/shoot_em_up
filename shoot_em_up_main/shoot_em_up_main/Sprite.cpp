@@ -2,9 +2,8 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL.h>
 
-Sprite::Sprite(SDL_Renderer* renderer, const char* path)
-    : texture(nullptr), width(0), height(0)
-{
+Sprite::Sprite(SDL_Renderer* renderer, const char* path)        //parameters, check if texture loaded
+    : texture(nullptr), width(0), height(0){
     if (!renderer || !path) 
         return;
 
@@ -29,7 +28,7 @@ Sprite::Sprite(SDL_Renderer* renderer, const char* path)
     SDL_DestroySurface(surface);
 }
 
-Sprite::~Sprite() {
+Sprite::~Sprite() {     //destructor
     if (texture) {
         SDL_DestroyTexture(texture);
         texture = nullptr;

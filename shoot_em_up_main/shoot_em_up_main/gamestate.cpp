@@ -1,5 +1,6 @@
 #include "gamestate.h"
 
+//each states used for different menu set ups
 bool GameState::isPaused() const{
     return paused;
 }
