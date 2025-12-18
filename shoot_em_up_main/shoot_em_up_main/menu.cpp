@@ -57,6 +57,23 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
 
 
     updateButtonPositions();
+    {
+        SDL_Surface* surface = IMG_Load("assets/title.png");
+        if (surface) {
+            titleTexture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (titleTexture) {
+                titleWidth = surface->w;
+                titleHeight = surface->h;
+            }
+            else {
+                SDL_Log("Failed to create title texture: %s", SDL_GetError());
+            }
+            SDL_DestroySurface(surface);
+        }
+        else {
+            SDL_Log("Failed to load title image assets/title.png : %s", SDL_GetError());
+        }
+    }
 }
 
 Menu::~Menu() {
@@ -72,6 +89,7 @@ Menu::~Menu() {
     if (quitButton.texture) SDL_DestroyTexture(quitButton.texture);
     if (quitButton.hoverTexture) SDL_DestroyTexture(quitButton.hoverTexture);
 
+    if (titleTexture) SDL_DestroyTexture(titleTexture);
 
     if (font) 
         TTF_CloseFont(font);
@@ -268,38 +286,60 @@ void Menu::draw() {
         SDL_RenderClear(renderer);
     }
 
-    if (font) {
-        SDL_Color titleColor = { 255, 255, 255, 255 };
-        const char* title;
+    if (isPauseMenu) {
+        if (font) {
+            SDL_Color titleColor = { 255, 255, 255, 255 };
+            const char* title;
 
-        if (isPauseMenu) {
-            if (isVictoryMenu) 
+            if (isVictoryMenu)
                 title = "VICTORY!";
-            else if (isGameOverMenu) 
+            else if (isGameOverMenu)
                 title = "GAME OVER";
-            else 
+            else
                 title = "PAUSED";
-        }
-        else 
-            title = "Shoot 'Em Up";
 
-        SDL_Surface* tempSurface = TTF_RenderText_Blended(font, title, 0, titleColor);
-        if (tempSurface) {
-            int titleW = tempSurface->w;
-            SDL_DestroySurface(tempSurface);
-            int titleY = (int)(playButton.rect.y - 100);
-            drawText(title, (windowWidth - titleW) / 2, titleY, titleColor);
+            SDL_Surface* tempSurface = TTF_RenderText_Blended(font, title, 0, titleColor);
+            if (tempSurface) {
+                int titleW = tempSurface->w;
+                SDL_DestroySurface(tempSurface);
+                int titleY = (int)(playButton.rect.y - 100);
+                drawText(title, (windowWidth - titleW) / 2, titleY, titleColor);
+            }
+        }
+    }
+    else {
+       
+        if (titleTexture) {
+            SDL_FRect titleRect;
+            titleRect.w = 256.0f;
+            titleRect.h = 128.0f;
+            titleRect.x = (windowWidth - titleRect.w) / 2.0f;
+            titleRect.y = (float)((int)(playButton.rect.y - 200));
+            SDL_RenderTexture(renderer, titleTexture, nullptr, &titleRect);
+        }
+        else {
+            if (font) {
+                SDL_Color titleColor = { 255, 255, 255, 255 };
+                const char* title = "BURGIRL";
+                SDL_Surface* tempSurface = TTF_RenderText_Blended(font, title, 0, titleColor);
+                if (tempSurface) {
+                    int titleW = tempSurface->w;
+                    SDL_DestroySurface(tempSurface);
+                    int titleY = (int)(playButton.rect.y - 100);
+                    drawText(title, (windowWidth - titleW) / 2, titleY, titleColor);
+                }
+            }
         }
     }
 
     if (isPauseMenu) {
-        if (isVictoryMenu || isGameOverMenu) 
+        if (isVictoryMenu || isGameOverMenu)
             drawButton(replayButton);
-        else 
-            drawButton(resumeButton); 
+        else
+            drawButton(resumeButton);
     }
-    else 
-        drawButton(playButton); 
+    else
+        drawButton(playButton);
 
     drawButton(quitButton);
 }

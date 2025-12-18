@@ -41,6 +41,10 @@ private:
     int windowWidth;      // Current window width
     int windowHeight;     // Current window height
    
+    // New members for title image
+    SDL_Texture* titleTexture;
+    int titleWidth;
+    int titleHeight;
 
     bool mouseOverButton(const Button& button, float mouseX, float mouseY) const;
     void drawButton(const Button& button);
