@@ -1,4 +1,7 @@
 #include "enemy.h"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
     : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), min_x(0), max_x(0), move_right(true) {
@@ -62,7 +65,7 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
     return *this;
 }
 
-EnemyType Enemy::parseEnemyType(const std::string& typeStr) const{
+EnemyType Enemy::parseEnemyType(const std::string& typeStr) {
     if (typeStr == "tomato") 
         return EnemyType::tomato;
     if (typeStr == "broccoli") 
@@ -191,20 +194,34 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
                 e.setHorizontalMovement(true, 120.0f, play_x, play_x + play_width);
     };
     
+    std::ifstream myfile("setUpEnemy.txt");
+
+    std::string currentLine;
+    if (myfile.is_open()) {
+        while (myfile.good()) {
+
+            std::getline(myfile, currentLine);
+            if (currentLine.empty())
+                continue;
+            float relX = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float start_y = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float w = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float h = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float speed = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            EnemyType enemy = Enemy::parseEnemyType(currentLine);
+            addEnemy(relX, start_y, w, h, speed, enemy);
+          
 
 
-    addEnemy(play_width - 80.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
-    addEnemy(play_width - 150.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
-    addEnemy(play_width -100.0f, -50.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
-    addEnemy(play_width - 250.0f, -500.0f, 70.0f, 70.0f, 150.0f, EnemyType::tomato);
+            
+        }
 
-    addEnemy(play_width - 100.0f, -200.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
-    addEnemy(play_width - 150.0f, -550.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
-    addEnemy(play_width - 100.0f, -400.0f, 70.0f, 70.0f, 150.0f, EnemyType::broccoli);
-
-    addEnemy(play_width - 200.0f, -300.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
-    addEnemy(play_width - 150.0f, -750.0f, 70.0f, 70.0f, 150.0f, EnemyType::carrot);
-
+    }
     next_enemy_index = enemies.size();
     all_spawned = true;
     spawn_timer = 0.5f;

@@ -39,7 +39,7 @@ public:
     Enemy& operator=(Enemy&& other) noexcept;
     Enemy(const Enemy&) = delete;
     Enemy& operator=(const Enemy&) = delete;
-    EnemyType parseEnemyType(const std::string& typeStr) const;
+    static EnemyType parseEnemyType(const std::string& typeStr);
 
 
     void setHorizontalBounds(int minX, int maxX);
