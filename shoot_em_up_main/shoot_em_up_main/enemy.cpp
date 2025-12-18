@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
+Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)     //parameters
     : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), min_x(0), max_x(0), move_right(true) {
 
     rect.x = x;
@@ -12,7 +12,7 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType ty
     rect.h = h;
 
     const char* sprite_path = nullptr;
-    switch (type) {
+    switch (type) {         //define each type of enemies
     case EnemyType::tomato: sprite_path = "assets/tomato.png"; break;
     case EnemyType::broccoli: sprite_path = "assets/brocolie.png"; break;
     case EnemyType::carrot: sprite_path = "assets/carrot.png"; break;
@@ -28,7 +28,7 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType ty
 
 }
 
-bool Enemy::isOffScreen(float screen_height) const {
+bool Enemy::isOffScreen(float screen_height) const {        //check if enemy is off screen
     return rect.y > screen_height; 
 }
 
@@ -43,7 +43,7 @@ Enemy::Enemy(Enemy&& other) noexcept
     other.sprite = nullptr;    // Prevent the moved-from object from deleting the sprite
 }
 
-Enemy& Enemy::operator=(Enemy&& other) noexcept {
+Enemy& Enemy::operator=(Enemy&& other) noexcept { //transfers all data from a temporary Enemy to this one
     if (this != &other) {
         delete sprite;
 
@@ -65,7 +65,7 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
     return *this;
 }
 
-EnemyType Enemy::parseEnemyType(const std::string& typeStr) {
+EnemyType Enemy::parseEnemyType(const std::string& typeStr) {       //converts a string into an enemy type
     if (typeStr == "tomato") 
         return EnemyType::tomato;
     if (typeStr == "broccoli") 
@@ -75,7 +75,7 @@ EnemyType Enemy::parseEnemyType(const std::string& typeStr) {
     return EnemyType();
 }
 
-void Enemy::setHorizontalBounds(int minX, int maxX) {
+void Enemy::setHorizontalBounds(int minX, int maxX) {       //defines the limits 
     min_x = minX;
     max_x = maxX;
     if (rect.x < minX) 
@@ -91,7 +91,7 @@ void Enemy::setHorizontalMovement(bool enabled, float speed, int minX, int maxX)
     max_x = maxX;
 }
 
-void Enemy::update(float dt) {
+void Enemy::update(float dt) {      //update for movement
     if (!isAlive()) 
         return; 
     rect.y += speed * dt;
@@ -114,7 +114,7 @@ void Enemy::update(float dt) {
 
 }
 
-void Enemy::draw(SDL_Renderer* renderer) const {
+void Enemy::draw(SDL_Renderer* renderer) const {        //draw every enemy still alive
     if (!isAlive()) 
         return; 
 
@@ -128,6 +128,7 @@ void Enemy::draw(SDL_Renderer* renderer) const {
     float bar_x = rect.x;
     float bar_y = rect.y - 10.0f;
 
+    //draw health bar
     SDL_FRect bg_rect = { bar_x, bar_y, bar_width, bar_height };
     SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
     SDL_RenderFillRect(renderer, &bg_rect);
@@ -146,7 +147,7 @@ void Enemy::takeDamage(int amount) {
         health = 0;
 }
 
-bool Enemy::loadEnemiesFromFile(const char* filename) const{
+bool Enemy::loadEnemiesFromFile(const char* filename) const{        //take the parameters written in file
     std::ifstream File(filename);
     std::string lineFromFile;
 
@@ -157,11 +158,11 @@ bool Enemy::isAlive() const {
     return health > 0;
 }
 
-bool Enemy::hasCollided() const {
+bool Enemy::hasCollided() const {       //test if it has collided with player
     return has_collided;
 }
 
-void Enemy::setCollided() {
+void Enemy::setCollided() {         //turns on the has collided state, cannot collide again
     has_collided = true;
 }
 
@@ -175,7 +176,7 @@ EnemyManager::EnemyManager()
     : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr) {
 }
 
-void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h) {
+void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h) {     //set up enemies from text file
     if (!renderer || play_width <= 0) 
         return;
 
@@ -198,10 +199,10 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
 
     std::string currentLine;
     if (myfile.is_open()) {
-        while (myfile.good()) {
+        while (myfile.good()) {     //gets each line to take the parameters
 
             std::getline(myfile, currentLine);
-            if (currentLine.empty())
+            if (currentLine.empty())        //check if no space seen
                 continue;
             float relX = std::stof(currentLine);
             std::getline(myfile, currentLine);
@@ -225,7 +226,7 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
     spawn_timer = 0.5f;
 }
 
-void EnemyManager::update(float dt) {
+void EnemyManager::update(float dt) {       
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].update(dt);
     }
@@ -241,17 +242,18 @@ void EnemyManager::draw() {
 }
 
 
-void EnemyManager::reset() {
+void EnemyManager::reset() {        //reset positions
     if (renderer) 
         setupEnemies(renderer, play_area_x, play_area_width, screen_height);
 }
 
 
-bool EnemyManager::allDestroyed() const {
+bool EnemyManager::allDestroyed() const {       //check if all destoryed
     if (!all_spawned)
         return false; 
     for (const auto& enemy : enemies) {
-        if (enemy.isAlive() && !enemy.isOffScreen(screen_height)) return false;
+        if (enemy.isAlive() && !enemy.isOffScreen(screen_height)) 
+            return false;
     }
     return true;
 }
@@ -260,7 +262,7 @@ void EnemyManager::setBulletManager(EnemyBulletManager* manager) {
     bullet_manager = manager;
 }
 
-void EnemyManager::shootFromRandomEnemy() {
+void EnemyManager::shootFromRandomEnemy() {     //unable the shoot from random enemies
     if (!bullet_manager) 
         return;
 

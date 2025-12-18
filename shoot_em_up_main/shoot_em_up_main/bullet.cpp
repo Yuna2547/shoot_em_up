@@ -1,14 +1,14 @@
 #include "bullet.h"
 #include <SDL3/SDL.h>
 
-// ---------------- Bullet ----------------
-Bullet::Bullet() {
+//player's bullet
+Bullet::Bullet() {      //parameters
     rect = { 0, 0, 5.0f, 15.0f };
     speed = 1000.0f;
     active = false;
 }
 
-void Bullet::update(float dt) {
+void Bullet::update(float dt) {     //update for it to gu upward
     if (active) {
         rect.y -= speed * dt;
 
@@ -17,7 +17,7 @@ void Bullet::update(float dt) {
     }
 }
 
-void Bullet::draw(SDL_Renderer* renderer) const {
+void Bullet::draw(SDL_Renderer* renderer) const {       //draws the bullet
     if (!renderer || !active) 
         return;
 
@@ -28,15 +28,15 @@ void Bullet::draw(SDL_Renderer* renderer) const {
     SDL_RenderRect(renderer, &rect);
 }
 
-void Bullet::deactivate() {
+void Bullet::deactivate() {       //disable the bullet
     active = false;
 }
 
-const SDL_FRect& Bullet::getRect() const {
+const SDL_FRect& Bullet::getRect() const {      //gets the rect of the bullet
     return rect;
 }
 
-BulletManager::BulletManager(int maxBullets, float cooldown)
+BulletManager::BulletManager(int maxBullets, float cooldown)        //manages the bullets with cooldown
     : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f) {
     bullets.resize(max_bullets);
 }
@@ -49,7 +49,7 @@ void BulletManager::update(float dt) {
     }
 }
 
-void BulletManager::shoot(float x, float y) {
+void BulletManager::shoot(float x, float y) {       //attack of the player when shooting a bullet
     if (cooldown_timer > 0.0f) 
         return;
 
@@ -65,13 +65,13 @@ void BulletManager::shoot(float x, float y) {
     }
 }
 
-void BulletManager::updateBullets(float dt) {
+void BulletManager::updateBullets(float dt) {       //update the bullets while still activated
     for (auto& bullet : bullets) {
         bullet.update(dt);
     }
 }
 
-void BulletManager::draw(SDL_Renderer* renderer) const {
+void BulletManager::draw(SDL_Renderer* renderer) const {        //draws the bullets with it's color
     if (!renderer) 
         return;
 
@@ -82,7 +82,7 @@ void BulletManager::draw(SDL_Renderer* renderer) const {
     }
 }
 
-void BulletManager::reset() {
+void BulletManager::reset() {       //when reseted, delete bullet
     cooldown_timer = 0.0f;
     for (auto& bullet : bullets) {
         bullet.deactivate();
@@ -96,14 +96,15 @@ std::vector<Bullet>& BulletManager::getBullets() {
 }
 
 
-EnemyBullet::EnemyBullet() {
+//enemy's bullets
+EnemyBullet::EnemyBullet() {        //parameters
     rect = { 0, 0, 15.0f, 15.f };
     speed = 500.0f;
     active = false;
 
 }
 
-void EnemyBullet::update(float dt, int screen_height) {
+void EnemyBullet::update(float dt, int screen_height) {     //update for the bullet to move
     if (active) {
         rect.y += speed * dt; 
 
@@ -112,7 +113,7 @@ void EnemyBullet::update(float dt, int screen_height) {
     }
 }
 
-void EnemyBullet::draw(SDL_Renderer* renderer) const {
+void EnemyBullet::draw(SDL_Renderer* renderer) const {      //draw the bullet for it to be neon green round bullets
     if (!renderer || !active) 
         return;
     
@@ -137,7 +138,7 @@ void EnemyBullet::draw(SDL_Renderer* renderer) const {
     }
 }
 
-void EnemyBullet::deactivate() {
+void EnemyBullet::deactivate() {        //disable enemy's bullets
     active = false;
 }
 
@@ -148,12 +149,12 @@ const SDL_FRect& EnemyBullet::getRect() const {
 
 
 
-EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown)
+EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown)      //manages the cooldown and shooting system
     : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f) {
     bullets.resize(max_bullets);
 }
 
-void EnemyBulletManager::update(float dt) {
+void EnemyBulletManager::update(float dt) {     //update the bullets
     if (cooldown_timer > 0.0f) {
         cooldown_timer -= dt;
         if (cooldown_timer < 0.0f) 
@@ -161,11 +162,11 @@ void EnemyBulletManager::update(float dt) {
     }
 }
 
-bool EnemyBulletManager::canShoot() const {
+bool EnemyBulletManager::canShoot() const {     //verify if shoot is available
     return cooldown_timer <= 0.0f;
 }
 
-void EnemyBulletManager::shoot(float x, float y) {
+void EnemyBulletManager::shoot(float x, float y) {      //enemy's attack
     if (cooldown_timer > 0.0f) 
         return;
 

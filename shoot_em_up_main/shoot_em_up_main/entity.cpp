@@ -2,7 +2,7 @@
 #include "Sprite.h"
 #include "enemy.h"
 
-Entity::Entity()
+Entity::Entity()        //parameters
     : speed(0), screen_width(0), screen_height(0), sprite(nullptr), health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0){
     rect.x = rect.y = rect.w = rect.h = 0.0f;
 }
@@ -28,7 +28,7 @@ Entity::~Entity() {
     sprite = nullptr;
 }
 
-void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer) {
+void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer) {       //initializes the player with it's parameters
     rect.x = x;
     rect.y = y;
     rect.w = w;
@@ -53,7 +53,7 @@ void Entity::Init(float x, float y, float w, float h, float speed_, SDL_Renderer
     }
 }
 
-void Entity::update(const bool* keys, float dt) {
+void Entity::update(const bool* keys, float dt) {       //update with movements
     if (!keys) 
         return;
 
@@ -64,7 +64,7 @@ void Entity::update(const bool* keys, float dt) {
             invulnerable_timer = 0.0f;
     }
 
-   
+   //directions not only with zqsd but with directional arrows
     if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) 
         rect.y -= speed * dt + 1;
     if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) 
@@ -74,6 +74,7 @@ void Entity::update(const bool* keys, float dt) {
     if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) 
         rect.x += speed * dt + 1;
 
+    //prevent from going off limits 
     if (rect.x < static_cast<float>(offset_x)) 
         rect.x = static_cast<float>(offset_x);
     if (rect.x + rect.w > static_cast<float>(offset_x + screen_width))
@@ -85,7 +86,7 @@ void Entity::update(const bool* keys, float dt) {
     
 }
 
-void Entity::setScreenBounds(int width, int height) {
+void Entity::setScreenBounds(int width, int height) {       //screen limits
     screen_width = width;
     screen_height = height;
 }
@@ -94,13 +95,13 @@ void Entity::setOffsetX(int offset) {
     offset_x = offset;
 }
 
-void Entity::draw(SDL_Renderer* renderer) const {
+void Entity::draw(SDL_Renderer* renderer) const {       //draw the player's states
     if (!renderer) return;
 
     if (sprite && sprite->IsValid()) {
         SDL_FRect dstRect = rect;
 
-        
+        //player flashing when invulnerable, after taking a hit
         if (isInvulnerable() && ((int)(invulnerable_timer * 10) % 2 == 0))
             SDL_SetTextureAlphaMod(sprite->GetTexture(), 128);
         else 
@@ -117,6 +118,7 @@ void Entity::draw(SDL_Renderer* renderer) const {
         SDL_RenderFillRect(renderer, &rect);
     }
 
+    //draw health bar above head
     float bar_width = rect.w;
     float bar_height = 8.0f;
     float bar_x = rect.x;
@@ -135,7 +137,7 @@ void Entity::draw(SDL_Renderer* renderer) const {
     SDL_RenderRect(renderer, &bg_rect);
 }
 
-void Entity::takeDamage(int amount) {
+void Entity::takeDamage(int amount) {       //damage manager
     if (!isInvulnerable()) {
         health -= amount;
         if (health < 0) health = 0;
