@@ -3,9 +3,8 @@
 #include <format>
 #include <print>
 
-Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0),
-    playAreaWidth(0), player(nullptr), bulletManager(nullptr), enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr),
-    gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
+Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0), playAreaWidth(0), player(nullptr), bulletManager(nullptr), 
+    enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr), gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
     
 }
 
