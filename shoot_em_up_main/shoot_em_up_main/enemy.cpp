@@ -215,8 +215,6 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
             std::getline(myfile, currentLine);
             EnemyType enemy = Enemy::parseEnemyType(currentLine);
             addEnemy(relX, start_y, w, h, speed, enemy);
-          
-
 
             
         }

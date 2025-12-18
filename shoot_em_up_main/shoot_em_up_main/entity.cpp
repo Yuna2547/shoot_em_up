@@ -4,14 +4,14 @@
 
 Entity::Entity()
     : speed(0), screen_width(0), screen_height(0), sprite(nullptr),
-    health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0)
+    health(20), max_health(20), invulnerable_timer(0.0f), offset_x(0)
 {
     rect.x = rect.y = rect.w = rect.h = 0.0f;
 }
 
 Entity::Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer)
     : speed(speed_), screen_width(800), screen_height(600), sprite(nullptr),
-    health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0)
+    health(20), max_health(20), invulnerable_timer(0.0f), offset_x(0)
 {
     rect.x = x;
     rect.y = y;
