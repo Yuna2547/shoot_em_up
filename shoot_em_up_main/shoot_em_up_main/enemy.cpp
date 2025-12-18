@@ -25,7 +25,7 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType ty
 
 }
 
-bool Enemy::isOffScreen(int screen_height) const {
+bool Enemy::isOffScreen(float screen_height) const {
     return rect.y > screen_height; 
 }
 
@@ -233,7 +233,8 @@ void EnemyManager::reset() {
 
 
 bool EnemyManager::allDestroyed() const {
-    if (!all_spawned) return false; 
+    if (!all_spawned)
+        return false; 
     for (const auto& enemy : enemies) {
         if (enemy.isAlive() && !enemy.isOffScreen(screen_height)) return false;
     }
@@ -245,7 +246,8 @@ void EnemyManager::setBulletManager(EnemyBulletManager* manager) {
 }
 
 void EnemyManager::shootFromRandomEnemy() {
-    if (!bullet_manager) return;
+    if (!bullet_manager) 
+        return;
 
     std::vector<Enemy*> alive_enemies;
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
