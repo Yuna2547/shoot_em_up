@@ -20,7 +20,7 @@ bool Game::initialize() {
     return true;
 }
 
-bool Game::initSDL() {
+bool Game::initSDL() const {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Error SDL_Init: ", SDL_GetError());
         return false;
@@ -94,7 +94,8 @@ bool Game::showMenu() {
 
     while (inMenu) {
         SDL_Event menuEvent;
-        float mouseX, mouseY;
+        float mouseX;
+        float mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         gameMenu->update(mouseX, mouseY);
         while (SDL_PollEvent(&menuEvent)) {
@@ -134,7 +135,8 @@ void Game::run() {
 
 void Game::handleEvents(){
     SDL_Event event;
-    float mouseX, mouseY;
+    float mouseX;
+    float mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
     // ---- Event handling (only handle events here) ----
@@ -182,7 +184,7 @@ void Game::update(float dt) {
         }
 
         bulletManager->update(dt);
-        bulletManager->updateBullets(dt, screenHeight);
+        bulletManager->updateBullets(dt);
         enemyManager->update(dt);
         enemyBulletManager->update(dt);
         enemyBulletManager->updateBullets(dt, screenHeight);
@@ -259,9 +261,11 @@ void Game::checkPlayerEnemyCollisions(){
 
 void Game::checkPlayerBulletCollisions(){
     const SDL_FRect& playerRect = player->getRect();
+
     for (auto& enemyBullet : enemyBulletManager->getBullets()) {
         if (!enemyBullet.active) 
             continue;
+
         if (checkCollision(playerRect, enemyBullet.getRect())) {
             player->takeDamage(2);
             enemyBullet.deactivate();
@@ -278,7 +282,7 @@ void Game::checkOffscreenEnemies() {
     }
 }
 
-bool Game::checkCollision(const SDL_FRect& a, const SDL_FRect& b) {
+bool Game::checkCollision(const SDL_FRect& a, const SDL_FRect& b) const {
     return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
 }
 
@@ -310,15 +314,12 @@ void Game::handleVictory(){
     gameMenu->setVictoryMode(true);
 }
 
-void Game::handlePause(){
+void Game::handlePause() const{
+    gameState->setPaused(true);
+    gameMenu->setPauseMode(true);
 }
 
-void Game::updateMenu(float mouseX, float mouseY){
-}
 
-int Game::processMenuResult(int menuResult){
-    return 0;
-}
 
 void Game::cleanup() {
     delete player;

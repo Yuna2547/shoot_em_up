@@ -30,7 +30,7 @@ private:
 	bool running;
 	Uint64 lastTime;
 
-	bool initSDL();
+	bool initSDL() const;
 	bool createWindow();
 	bool createRenderer();
 	void calculatePlayArea();
@@ -44,13 +44,11 @@ private:
 	void checkPlayerEnemyCollisions();
 	void checkPlayerBulletCollisions();
 	void checkOffscreenEnemies();
-	bool checkCollision(const SDL_FRect& a, const SDL_FRect& b);
+	bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) const;
 	void resetGame();
 	void handleGameOver();
 	void handleVictory();
-	void handlePause();
-	void updateMenu(float mouseX, float mouseY);
-	int processMenuResult(int menuResult);
+	void handlePause() const;
 
 	void cleanup();
 

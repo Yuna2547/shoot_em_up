@@ -11,7 +11,7 @@ public:
 
     Bullet();
 
-    void update(float dt, int screen_height);
+    void update(float dt);
     void draw(SDL_Renderer* renderer) const;
     void deactivate();
     const SDL_FRect& getRect() const;
@@ -29,9 +29,9 @@ public:
 
     void update(float dt);
     void shoot(float x, float y);
-    void updateBullets(float dt, int screen_height);
+    void updateBullets(float dt);
     void reset();
-    void draw(SDL_Renderer* renderer);
+    void draw(SDL_Renderer* renderer) const;
 
     std::vector<Bullet>& getBullets();
 };

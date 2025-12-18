@@ -8,7 +8,7 @@ Bullet::Bullet() {
     active = false;
 }
 
-void Bullet::update(float dt, int screen_height) {
+void Bullet::update(float dt) {
     if (active) {
         rect.y -= speed * dt;
 
@@ -65,13 +65,13 @@ void BulletManager::shoot(float x, float y) {
     }
 }
 
-void BulletManager::updateBullets(float dt, int screen_height) {
+void BulletManager::updateBullets(float dt) {
     for (auto& bullet : bullets) {
-        bullet.update(dt, screen_height);
+        bullet.update(dt);
     }
 }
 
-void BulletManager::draw(SDL_Renderer* renderer) {
+void BulletManager::draw(SDL_Renderer* renderer) const {
     if (!renderer) 
         return;
 
@@ -116,9 +116,9 @@ void EnemyBullet::draw(SDL_Renderer* renderer) const {
     if (!renderer || !active) 
         return;
     
-    int centerX = static_cast<int>(rect.x + rect.w / 2.0f);
-    int centerY = static_cast<int>(rect.y + rect.h / 2.0f); 
-    int radius = static_cast<int>(rect.w / 2.0f);
+    auto centerX = static_cast<int>(rect.x + rect.w / 2.0f);
+    auto centerY = static_cast<int>(rect.y + rect.h / 2.0f);
+    auto radius = static_cast<int>(rect.w / 2.0f);
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     for (int y = -radius; y <= radius; y++) {

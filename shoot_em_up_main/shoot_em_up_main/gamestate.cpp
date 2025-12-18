@@ -35,6 +35,6 @@ void GameState::reset() {
     victory = false;
 }
 
-bool GameState::isActive(){
+bool GameState::isActive() const{
     return !paused && !game_over && !victory;
 }

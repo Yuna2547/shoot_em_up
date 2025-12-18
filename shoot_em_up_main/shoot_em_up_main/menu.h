@@ -42,7 +42,7 @@ private:
     int windowHeight;     // Current window height
    
 
-    bool mouseOverButton(const Button& button, float mouseX, float mouseY);
+    bool mouseOverButton(const Button& button, float mouseX, float mouseY) const;
     void drawButton(const Button& button);
     void drawText(const char* text, int x, int y, SDL_Color color);
     void updateButtonPositions(); // Recalculate button positions

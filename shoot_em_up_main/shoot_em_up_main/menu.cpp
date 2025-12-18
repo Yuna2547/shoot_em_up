@@ -153,7 +153,7 @@ void Menu::updateButtonPositions() {
     quitButton.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
 }
 
-bool Menu::mouseOverButton(const Button& button, float mouseX, float mouseY) {
+bool Menu::mouseOverButton(const Button& button, float mouseX, float mouseY) const {
     return (mouseX >= button.rect.x && mouseX <= button.rect.x + button.rect.w && mouseY >= button.rect.y && mouseY <= button.rect.y + button.rect.h);
 }
 

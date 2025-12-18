@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)
-    : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), move_right(true), min_x(0), max_x(0) {
+    : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), min_x(0), max_x(0), move_right(true) {
 
     rect.x = x;
     rect.y = start_y;
@@ -62,8 +62,7 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept {
     return *this;
 }
 
-EnemyType Enemy::parseEnemyType(const std::string& typeStr)
-{
+EnemyType Enemy::parseEnemyType(const std::string& typeStr) const{
     if (typeStr == "tomato") 
         return EnemyType::tomato;
     if (typeStr == "broccoli") 
@@ -144,8 +143,7 @@ void Enemy::takeDamage(int amount) {
         health = 0;
 }
 
-bool Enemy::loadEnemiesFromFile(const char* filename)
-{
+bool Enemy::loadEnemiesFromFile(const char* filename) const{
     std::ifstream File(filename);
     std::string lineFromFile;
 
@@ -171,7 +169,7 @@ const SDL_FRect& Enemy::getRect() const {
 
 
 EnemyManager::EnemyManager()
-    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), bullet_manager(nullptr), screen_height(0) {
+    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr) {
 }
 
 void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h) {

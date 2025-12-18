@@ -39,7 +39,7 @@ public:
     Enemy& operator=(Enemy&& other) noexcept;
     Enemy(const Enemy&) = delete;
     Enemy& operator=(const Enemy&) = delete;
-    EnemyType parseEnemyType(const std::string& typeStr);
+    EnemyType parseEnemyType(const std::string& typeStr) const;
 
 
     void setHorizontalBounds(int minX, int maxX);
@@ -47,7 +47,7 @@ public:
     void update(float dt);
     void draw(SDL_Renderer* renderer) const;
     void takeDamage(int amount);
-    bool loadEnemiesFromFile(const char* filename);
+    bool loadEnemiesFromFile(const char* filename) const;
 
     bool isAlive() const;
     bool hasCollided() const;

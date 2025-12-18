@@ -23,6 +23,6 @@ public:
 	void reset();
 
 	// check if game active
-	bool isActive();
+	bool isActive() const;
 };
 
