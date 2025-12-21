@@ -30,10 +30,9 @@ Sprite::Sprite(SDL_Renderer* renderer, const char* path)        //parameters, ch
 }
 
 Sprite::~Sprite() {     //destructor
-    if (texture) {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
+    SDL_DestroyTexture(texture);
+    texture = nullptr;
+    
 }
 
 bool Sprite::IsValid() const {
