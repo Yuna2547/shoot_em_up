@@ -36,8 +36,10 @@ const SDL_FRect& Bullet::getRect() const {      //gets the rect of the bullet
     return rect;
 }
 
-BulletManager::BulletManager(int maxBullets, float cooldown)        //manages the bullets with cooldown
-    : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f) {
+BulletManager::BulletManager(int maxBullets, float cooldown) {     //manages the bullets with cooldown{
+	max_bullets = maxBullets;   
+	shoot_cooldown = cooldown;  
+	cooldown_timer = 0.0f;
     bullets.resize(max_bullets);
 }
 
@@ -131,7 +133,8 @@ void EnemyBullet::draw(SDL_Renderer* renderer) const {      //draw the bullet fo
 
     SDL_SetRenderDrawColor(renderer, 0, 128, 0, 255);
     for (int angle = 0; angle < 360; angle += 5) {
-        float rad = angle * 3.14159f / 180.0f;
+		float pi = 3.14159f;
+        float rad = angle * pi / 180.0f;
         int x = centerX + static_cast<int>(radius * cos(rad));
         int y = centerY + static_cast<int>(radius * sin(rad));
         SDL_RenderPoint(renderer, x, y);
@@ -149,8 +152,10 @@ const SDL_FRect& EnemyBullet::getRect() const {
 
 
 
-EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown)      //manages the cooldown and shooting system
-    : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f) {
+EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown) {     //manages the cooldown and shooting system
+	max_bullets = maxBullets;
+	shoot_cooldown = cooldown;  
+	cooldown_timer = 0.0f;
     bullets.resize(max_bullets);
 }
 

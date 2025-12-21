@@ -3,13 +3,21 @@
 #include <fstream>
 #include <string>
 
-Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType type, SDL_Renderer* renderer)     //parameters
-    : speed(speed), type(type), has_collided(false), health(10), max_health(10), sprite(nullptr), horizontal(false), hspeed(0.0f), min_x(0), max_x(0), move_right(true) {
-
+Enemy::Enemy(float x, float start_y, float w, float h, float Speed, EnemyType Type, SDL_Renderer* renderer) {    //parameters
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
-    rect.h = h;
+    rect.h = h;speed = Speed;
+	type = Type;
+	health = 10;
+	max_health = 10;
+    hspeed = 0.0f;
+    min_x = 0;
+    max_x = 0;
+	sprite = nullptr;
+	horizontal = false;
+    move_right = true;
+    has_collided = false;
 
     const char* sprite_path = nullptr;
     switch (type) {         //define each type of enemies
