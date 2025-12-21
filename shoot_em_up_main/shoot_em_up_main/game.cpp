@@ -3,9 +3,9 @@
 #include <format>
 #include <print>
 
-Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0), playAreaWidth(0), player(nullptr), bulletManager(nullptr), 
-    enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr), gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0) {
-    
+Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0), playAreaWidth(0), player(nullptr), bulletManager(nullptr),
+enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr), gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0), currentLevel(1) {
+
 }
 
 Game::~Game() {
@@ -13,10 +13,10 @@ Game::~Game() {
 }
 
 bool Game::initialize() {       //initialisation of the window
-    if (!initSDL() || !createWindow() || !createRenderer()) 
+    if (!initSDL() || !createWindow() || !createRenderer())
         return false;
     calculatePlayArea();
-    if (!loadResources()) 
+    if (!loadResources())
         return false;
     setupGameObjects();
     return true;
@@ -41,7 +41,7 @@ bool Game::createWindow() {         //creation of the window following the param
     return true;
 }
 
-bool Game::createRenderer(){        //renderers created
+bool Game::createRenderer() {        //renderers created
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
         SDL_Log("Error creating renderer: ", SDL_GetError());
@@ -59,14 +59,14 @@ void Game::calculatePlayArea() {    //calculation of the area where you can play
 }
 
 bool Game::loadResources() {        //load the ressources needed for the background
-    SDL_Surface* bgSurface = IMG_Load("assets/background.png");  
+    SDL_Surface* bgSurface = IMG_Load("assets/background.png");
     if (bgSurface) {
         bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
         SDL_DestroySurface(bgSurface);
-        if (!bgTexture) 
+        if (!bgTexture)
             SDL_Log("Warning: could not create background texture: ", SDL_GetError());
     }
-    else 
+    else
         SDL_Log("Warning: could not load background image: ", SDL_GetError());
     return true;
 }
@@ -83,12 +83,13 @@ void Game::setupGameObjects() {     //set up of the objects needed throughout th
     gameState = new GameState();
     gameMenu = new Menu(renderer, screenWidth, screenHeight);
 
-    
+
     player->setScreenBounds(playAreaWidth, screenHeight);
     player->setOffsetX(playAreaX);
-    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
+    // load current level file (currentLevel defaults to 1)
+    loadLevel(currentLevel);
     enemyManager->setBulletManager(enemyBulletManager);
-    
+
 }
 
 bool Game::showMenu() {     //creation of the menu when the game is started (start menu)
@@ -116,7 +117,7 @@ bool Game::showMenu() {     //creation of the menu when the game is started (sta
                 startGame = true;
                 inMenu = false;
             }
-            else if (menuResult == 2) 
+            else if (menuResult == 2)
                 inMenu = false;
         }
         gameMenu->draw();
@@ -144,14 +145,14 @@ void Game::run() {      //create dt and get the times needed for any speed in th
     }
 }
 
-void Game::handleEvents(){
+void Game::handleEvents() {
     SDL_Event event;
     float mouseX;
     float mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
     while (SDL_PollEvent(&event)) {         //events handled here
-        if (event.type == SDL_EVENT_QUIT) 
+        if (event.type == SDL_EVENT_QUIT)
             running = false;
 
         if (event.type == SDL_EVENT_KEY_DOWN) {
@@ -169,14 +170,42 @@ void Game::handleEvents(){
 
         if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) {       //anything but menu start
             int menuResult = gameMenu->handleEvents(event);
-            if (menuResult == 1) {
-                if (gameState->isVictory() || gameState->isGameOver())      //can choose to restart the level if you won or lost
-                    resetGame();
-                else 
-                    gameState->setPaused(false);
+            // Debug log every menu result so we can trace clicks and states
+            if (menuResult != 0) {
+                SDL_Log("MenuResult=%d currentLevel=%d paused=%d victory=%d gameover=%d",
+                    menuResult,
+                    currentLevel,
+                    gameState->isPaused() ? 1 : 0,
+                    gameState->isVictory() ? 1 : 0,
+                    gameState->isGameOver() ? 1 : 0);
             }
-            else if (menuResult == 2) 
+            if (menuResult == 1) {
+                // Replay button clicked
+                if (gameState->isVictory() || gameState->isGameOver()) {
+                    resetGame();  // Replay current level
+                }
+                else {
+                    gameState->setPaused(false);  // Resume from pause
+                }
+            }
+            else if (menuResult == 2) {
+                // Level 2 button clicked (only appears when winning Level 1)
+                if (gameState->isVictory() && currentLevel == 1) {
+                    SDL_Log("Level 2 button clicked - loading Level 2");
+                    loadLevel(2);
+                }
+            }
+            else if (menuResult == 3) {
+                // Level 1 button clicked (only appears when winning Level 2)
+                if (gameState->isVictory() && currentLevel == 2) {
+                    SDL_Log("Level 1 button clicked - loading Level 1");
+                    loadLevel(1);
+                }
+            }
+            else if (menuResult == 4) {
+                // Quit button clicked
                 running = false;
+            }
         }
     }
 }
@@ -202,10 +231,10 @@ void Game::update(float dt) {       //update all objects here
         //update the collisions handled
         handleCollisions();
 
-        if (player->getHealth() <= 0) 
+        if (player->getHealth() <= 0)
             handleGameOver();       //toggle game over if health bellow 0
 
-        if (enemyManager->allDestroyed()) 
+        if (enemyManager->allDestroyed())
             handleVictory();        //toggle victory if all enemies dead/out of screen and hp remaining for the player
     }
     else if (gameState->isPaused())     //toggle pause menu if paused
@@ -220,7 +249,7 @@ void Game::render() {       //renderers for the game
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    if (bgTexture) 
+    if (bgTexture)
         SDL_RenderTexture(renderer, bgTexture, nullptr, nullptr);
 
     enemyManager->draw();
@@ -230,7 +259,7 @@ void Game::render() {       //renderers for the game
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     //left bar defined out of play area -> black
-    SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(playAreaX), static_cast<float>(screenHeight) };        
+    SDL_FRect leftBar = { 0.0f, 0.0f, static_cast<float>(playAreaX), static_cast<float>(screenHeight) };
     SDL_RenderFillRect(renderer, &leftBar);
 
     //right bar defined out of play area -> black
@@ -242,7 +271,7 @@ void Game::render() {       //renderers for the game
 }
 
 void Game::handleCollisions() {     // handle all collisions in the game
-    checkOffscreenEnemies();       
+    checkOffscreenEnemies();
     checkBulletEnemyCollisions();
     checkPlayerEnemyCollisions();
     checkPlayerBulletCollisions();
@@ -253,7 +282,7 @@ void Game::checkBulletEnemyCollisions() {       //count the collision between th
         if (!bullet.active)
             continue;
         for (auto& enemy : enemyManager->getEnemies()) {
-            if (!enemy.isAlive()) 
+            if (!enemy.isAlive())
                 continue;
             if (checkCollision(bullet.getRect(), enemy.getRect())) {        //the enemy is damaged 2hp if collision, and the bullet deactivate
                 enemy.takeDamage(2);
@@ -264,7 +293,7 @@ void Game::checkBulletEnemyCollisions() {       //count the collision between th
     }
 }
 
-void Game::checkPlayerEnemyCollisions(){        //check if the player collides with the enemy
+void Game::checkPlayerEnemyCollisions() {        //check if the player collides with the enemy
     const SDL_FRect& playerRect = player->getRect();
     for (auto& enemy : enemyManager->getEnemies()) {
         if (!enemy.hasCollided() && enemy.isAlive() && checkCollision(playerRect, enemy.getRect())) {
@@ -272,15 +301,15 @@ void Game::checkPlayerEnemyCollisions(){        //check if the player collides w
             enemy.setCollided();        //cannot collide with this enemy again
         }
     }
-    if (enemyBulletManager->canShoot()) 
+    if (enemyBulletManager->canShoot())
         enemyManager->shootFromRandomEnemy();
 }
 
-void Game::checkPlayerBulletCollisions(){       //check collision between the enemy's bullet and the player
+void Game::checkPlayerBulletCollisions() {       //check collision between the enemy's bullet and the player
     const SDL_FRect& playerRect = player->getRect();
 
     for (auto& enemyBullet : enemyBulletManager->getBullets()) {
-        if (!enemyBullet.active) 
+        if (!enemyBullet.active)
             continue;
 
         if (checkCollision(playerRect, enemyBullet.getRect())) {        //the player loses 2hp if the bullet strikes
@@ -313,30 +342,34 @@ void Game::resetGame() {        //takes care of deleting anything not useful for
     delete enemyBulletManager;          //define everything needed for the restart
     delete bulletManager;
     bulletManager = new BulletManager(100, 0.1f);
-    enemyBulletManager = new EnemyBulletManager(200, 0.5f); 
+    enemyBulletManager = new EnemyBulletManager(200, 0.5f);
 
-    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight);
+    // reload the current level file
+    std::string filename = getLevelFilename(currentLevel);
+    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight, filename.c_str());
     enemyManager->setBulletManager(enemyBulletManager);
 
     gameState->reset();
 }
 
-void Game::handleGameOver(){        //sets the game over menu
+void Game::handleGameOver() {        //sets the game over menu
     gameState->setGameOver(true);
     gameState->setPaused(true);
     gameMenu->setPauseMode(true);
     gameMenu->setGameOverMode(true);
-    
-}
 
-void Game::handleVictory(){         //sets the victory menu
+}
+void Game::handleVictory() {         //sets the victory menu
     gameState->setVictory(true);
     gameState->setPaused(true);
     gameMenu->setPauseMode(true);
     gameMenu->setVictoryMode(true);
+
+    // Tell the menu which level was just won
+    gameMenu->setCurrentLevel(currentLevel);
 }
 
-void Game::handlePause() const{     //set the paused menu
+void Game::handlePause() const {     //set the paused menu
     gameState->setPaused(true);
     gameMenu->setPauseMode(true);
 }
@@ -344,23 +377,86 @@ void Game::handlePause() const{     //set the paused menu
 
 
 void Game::cleanup() {              //cleans every pointers and destroy any texture
-    player = nullptr;
-    delete player;
-    bulletManager = nullptr;
-    delete bulletManager;
-    enemyManager = nullptr;
-    delete enemyManager;
-    gameState = nullptr;
-    delete gameState;
-    gameMenu = nullptr;
-    delete gameMenu;
+    if (player) {
+        delete player;
+        player = nullptr;
+    }
 
-    if (bgTexture) 
+    if (bulletManager) {
+        delete bulletManager;
+        bulletManager = nullptr;
+    }
+
+    if (enemyBulletManager) {
+        delete enemyBulletManager;
+        enemyBulletManager = nullptr;
+    }
+
+    if (enemyManager) {
+        delete enemyManager;
+        enemyManager = nullptr;
+    }
+
+    if (gameState) {
+        delete gameState;
+        gameState = nullptr;
+    }
+
+    if (gameMenu) {
+        delete gameMenu;
+        gameMenu = nullptr;
+    }
+
+    if (bgTexture) {
         SDL_DestroyTexture(bgTexture);
-    if (renderer) 
+        bgTexture = nullptr;
+    }
+    if (renderer) {
         SDL_DestroyRenderer(renderer);
-    if (window) 
+        renderer = nullptr;
+    }
+    if (window) {
         SDL_DestroyWindow(window);
+        window = nullptr;
+    }
 
     SDL_Quit();
+}
+
+// NEW: helper to map level -> filename
+std::string Game::getLevelFilename(int level) const {
+    if (level == 1) return "setUpEnemy.txt";
+    if (level == 2) return "setUpEnemy2.txt";
+    return "setUpEnemy.txt";
+}
+
+// NEW: load a given level number (1 or 2). This resets bullet managers and loads the enemy file.
+void Game::loadLevel(int level) {
+    // clamp level between 1 and 2
+    if (level < 1) level = 1;
+    if (level > 2) level = 2;
+    currentLevel = level;
+
+    // reset player position & health
+    if (player) {
+        player->resetPosition(initialPlayerX, initialPlayerY);
+        player->resetHealth();
+    }
+
+    // recreate bullet managers
+    delete enemyBulletManager;
+    delete bulletManager;
+    bulletManager = new BulletManager(100, 0.1f);
+    enemyBulletManager = new EnemyBulletManager(200, 0.5f);
+
+    // load enemy file for chosen level
+    std::string filename = getLevelFilename(currentLevel);
+    enemyManager->setupEnemies(renderer, playAreaX, playAreaWidth, screenHeight, filename.c_str());
+    enemyManager->setBulletManager(enemyBulletManager);
+
+    // reset game state (clears victory/pause/game over)
+    gameState->reset();
+    gameMenu->setPauseMode(false);
+    gameMenu->setVictoryMode(false);
+    gameMenu->setGameOverMode(false);
 }

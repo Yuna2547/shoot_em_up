@@ -69,12 +69,13 @@ private:
     int screen_height;
 
     EnemyBulletManager* bullet_manager;
-
+    std::string enemy_file;
 
 public:
     EnemyManager();
 
-    void setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h);
+    // filename parameter added (defaults to old filename for compatibility)
+    void setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h, const char* filename = "setUpEnemy.txt");
     void update(float dt);
     void draw();
     void reset();

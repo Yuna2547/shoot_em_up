@@ -12,7 +12,6 @@ enum class Button_Type {
 };
 
 
-
 // A simple button structure
 struct Button {
     SDL_FRect rect;      // Position and size of button
@@ -22,7 +21,7 @@ struct Button {
     bool isHovered;      // Is mouse currently over this button?
     SDL_Texture* texture;
     SDL_Texture* hoverTexture;
-    
+
 
 };
 
@@ -33,15 +32,18 @@ private:
     TTF_Font* font;
     Button playButton;
     Button quitButton;
-    Button resumeButton;  // New button for pausing
+    Button resumeButton;
     Button replayButton;
+    Button level1Button;  // Button to go to Level 1
+    Button level2Button;  // Button to go to Level 2
     bool isPauseMenu;     // Track if this is pause menu or main menu
     bool isVictoryMenu;
     bool isGameOverMenu;
+    int currentLevel;
     int windowWidth;      // Current window width
     int windowHeight;     // Current window height
-   
-    // New members for title image
+
+    // members for title image
     SDL_Texture* titleTexture;
     int titleWidth;
     int titleHeight;
@@ -57,7 +59,6 @@ public:
     Menu(SDL_Renderer* renderer, int winWidth = 800, int winHeight = 600);
     ~Menu();
 
-    // Return : 0 = nothing, 1 = play/resume, 2 = quit
     int handleEvents(SDL_Event& event);
 
     // Draw menu
@@ -69,4 +70,5 @@ public:
     void setVictoryMode(bool isVictory);
     void setGameOverMode(bool isGameOver);
     void setWindowSize(int width, int height);
+    void setCurrentLevel(int level);
 };

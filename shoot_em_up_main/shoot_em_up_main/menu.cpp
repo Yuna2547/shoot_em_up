@@ -2,9 +2,8 @@
 #include <SDL3_image/SDL_image.h>
 
 Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
-    : renderer(renderer), font(nullptr), isPauseMenu(false), isVictoryMenu(false), isGameOverMenu(false), windowWidth(winWidth), windowHeight(winHeight) {
+    : renderer(renderer), font(nullptr), isPauseMenu(false), isVictoryMenu(false), isGameOverMenu(false), currentLevel(1), windowWidth(winWidth), windowHeight(winHeight) {
 
-    
     if (TTF_Init() == -1) // Initialize SDL_ttf
         SDL_Log("TTF_Init Error: ", SDL_GetError());
     else {
@@ -13,7 +12,7 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
             font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 32);
             if (!font) {
                 font = TTF_OpenFont("C:\\Windows\\Fonts\\arial.ttf", 32);
-                if (!font) 
+                if (!font)
                     SDL_Log("Failed to load font: ", SDL_GetError());
             }
         }
@@ -21,8 +20,8 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
 
     //define every buttons needed with their assets 
     playButton.text = "Play";
-    playButton.color = { 0, 180, 0, 255 };       
-    playButton.hoverColor = { 0, 220, 0, 255 };  
+    playButton.color = { 0, 180, 0, 255 };
+    playButton.hoverColor = { 0, 220, 0, 255 };
     playButton.isHovered = false;
     playButton.texture = nullptr;
     playButton.hoverTexture = nullptr;
@@ -41,6 +40,20 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
     replayButton.texture = nullptr;
     replayButton.hoverTexture = nullptr;
 
+    level1Button.text = "Level 1";
+    level1Button.color = { 0, 200, 100, 255 };
+    level1Button.hoverColor = { 0, 230, 140, 255 };
+    level1Button.isHovered = false;
+    level1Button.texture = nullptr;
+    level1Button.hoverTexture = nullptr;
+
+    level2Button.text = "Level 2";
+    level2Button.color = { 100, 200, 0, 255 };
+    level2Button.hoverColor = { 140, 230, 0, 255 };
+    level2Button.isHovered = false;
+    level2Button.texture = nullptr;
+    level2Button.hoverTexture = nullptr;
+
     quitButton.text = "Quit";
     quitButton.color = { 180, 0, 0, 255 };
     quitButton.hoverColor = { 220, 0, 0, 255 };
@@ -51,6 +64,8 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
     loadButtonTexture(playButton, "assets/play.png", "assets/play_hover.png");
     loadButtonTexture(resumeButton, "assets/resume.png", "assets/resume_hover.png");
     loadButtonTexture(replayButton, "assets/replay.png", "assets/replay_hover.png");
+	loadButtonTexture(level1Button, "assets/level1.png", "assets/level1_hover.png");
+	loadButtonTexture(level2Button, "assets/level2.png", "assets/level2_hover.png");
     loadButtonTexture(quitButton, "assets/stop.png", "assets/stop_hover.png");
 
 
@@ -75,29 +90,29 @@ Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
 }
 
 Menu::~Menu() {     //destory the textures when the menu is closed
-    if (playButton.texture) 
+    if (playButton.texture)
         SDL_DestroyTexture(playButton.texture);
-    if (playButton.hoverTexture) 
+    if (playButton.hoverTexture)
         SDL_DestroyTexture(playButton.hoverTexture);
 
-    if (resumeButton.texture) 
+    if (resumeButton.texture)
         SDL_DestroyTexture(resumeButton.texture);
-    if (resumeButton.hoverTexture) 
+    if (resumeButton.hoverTexture)
         SDL_DestroyTexture(resumeButton.hoverTexture);
 
-    if (replayButton.texture) 
+    if (replayButton.texture)
         SDL_DestroyTexture(replayButton.texture);
     if (replayButton.hoverTexture)
         SDL_DestroyTexture(replayButton.hoverTexture);
 
-    if (quitButton.texture) 
+    if (quitButton.texture)
         SDL_DestroyTexture(quitButton.texture);
-    if (quitButton.hoverTexture) 
+    if (quitButton.hoverTexture)
         SDL_DestroyTexture(quitButton.hoverTexture);
 
     if (titleTexture) SDL_DestroyTexture(titleTexture);
 
-    if (font) 
+    if (font)
         TTF_CloseFont(font);
     TTF_Quit();
 
@@ -108,25 +123,25 @@ void Menu::loadButtonTexture(Button& button, const char* normalPath, const char*
     if (surface) {
         button.texture = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_DestroySurface(surface);
-        if (!button.texture) 
-            SDL_Log("Failed to create texture from ", normalPath," : ", SDL_GetError());
-        else 
+        if (!button.texture)
+            SDL_Log("Failed to create texture from ", normalPath, " : ", SDL_GetError());
+        else
             SDL_Log("Successfully loaded texture: ", normalPath);
     }
-    else 
-        SDL_Log("Failed to load image ", normalPath," : ", SDL_GetError());
+    else
+        SDL_Log("Failed to load image ", normalPath, " : ", SDL_GetError());
 
     if (hoverPath) {        //load texture for the hover button
         surface = IMG_Load(hoverPath);
         if (surface) {
             button.hoverTexture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_DestroySurface(surface);
-            if (!button.hoverTexture) 
+            if (!button.hoverTexture)
                 SDL_Log("Failed to create hover texture from ", hoverPath, " : ", SDL_GetError());
-            else 
+            else
                 SDL_Log("Successfully loaded hover texture: ", hoverPath);
         }
-        else 
+        else
             SDL_Log("Failed to load hover image ", hoverPath, " : ", SDL_GetError());
     }
 }
@@ -138,22 +153,25 @@ void Menu::setPauseMode(bool isPause) {     //trigger pause menu
         isVictoryMenu = false;
         isGameOverMenu = false;
     }
+    updateButtonPositions();
 }
 
-void Menu::setVictoryMode(bool isVictory){      //trigger victory menu
+void Menu::setVictoryMode(bool isVictory) {      //trigger victory menu
     isVictoryMenu = isVictory;
     if (isVictory) {
-        isPauseMenu = true;  
+        isPauseMenu = true;
         isGameOverMenu = false;
     }
+    updateButtonPositions(); 
 }
 
 void Menu::setGameOverMode(bool isGameOver) {       //trigger game over menu
     isGameOverMenu = isGameOver;
     if (isGameOver) {
-        isPauseMenu = true; 
+        isPauseMenu = true;
         isVictoryMenu = false;
     }
+    updateButtonPositions();
 }
 
 void Menu::setWindowSize(int width, int height) {       //adjusts to the window's size
@@ -162,69 +180,130 @@ void Menu::setWindowSize(int width, int height) {       //adjusts to the window'
     updateButtonPositions();
 }
 
-void Menu::updateButtonPositions() {        //adjust the button's position
+void Menu::updateButtonPositions() {
     float buttonWidth = 155.0f;
     float buttonHeight = 75.0f;
     float buttonSpacing = 40.0f;
 
     float centerX = (windowWidth - buttonWidth) / 2.0f;
-    float startY = (windowHeight - (buttonHeight * 2 + buttonSpacing)) / 2.0f;
 
-    playButton.rect = { centerX, startY, buttonWidth, buttonHeight };
-    resumeButton.rect = { centerX, startY, buttonWidth, buttonHeight };
-    replayButton.rect = { centerX, startY, buttonWidth, buttonHeight }; 
-    quitButton.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
+    if (isPauseMenu && isVictoryMenu) {
+        // Victory menu: 3 buttons (Replay, Level1/Level2, Quit)
+        float startY = (windowHeight - (buttonHeight * 3 + buttonSpacing * 2)) / 2.0f;
+        replayButton.rect = { centerX, startY, buttonWidth, buttonHeight };
+        level1Button.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
+        level2Button.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
+        quitButton.rect = { centerX, startY + (buttonHeight + buttonSpacing) * 2, buttonWidth, buttonHeight };
+        // keep resume/play rects consistent (unused here)
+        playButton.rect = replayButton.rect;
+        resumeButton.rect = replayButton.rect;
+    }
+    else {
+        float startY = (windowHeight - (buttonHeight * 2 + buttonSpacing)) / 2.0f;
+        playButton.rect = { centerX, startY, buttonWidth, buttonHeight };
+        resumeButton.rect = { centerX, startY, buttonWidth, buttonHeight };
+        replayButton.rect = { centerX, startY, buttonWidth, buttonHeight };
+        level1Button.rect = { centerX, startY, buttonWidth, buttonHeight };
+        level2Button.rect = { centerX, startY, buttonWidth, buttonHeight };
+        quitButton.rect = { centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight };
+    }
 }
 
 bool Menu::mouseOverButton(const Button& button, float mouseX, float mouseY) const {        //detects if the mouse passes over the button for the hover texture
     return (mouseX >= button.rect.x && mouseX <= button.rect.x + button.rect.w && mouseY >= button.rect.y && mouseY <= button.rect.y + button.rect.h);
 }
-
 int Menu::handleEvents(SDL_Event& event) {
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         float mouseX = event.button.x;
         float mouseY = event.button.y;
 
         if (isPauseMenu) {
-            if (isVictoryMenu || isGameOverMenu) {      //if victory of game over
-                if (mouseOverButton(replayButton, mouseX, mouseY))      //toggle replay button for the first button
-                    return 1; 
+            if (isVictoryMenu || isGameOverMenu) {
+                // Victory or Game Over menu
+                // Check REPLAY button FIRST (top button)
+                if (mouseOverButton(replayButton, mouseX, mouseY)) {
+                    SDL_Log("Replay button clicked!");
+                    return 1; // Replay current level
+                }
+                // Check which level button to show (middle button)
+                if (isVictoryMenu) {
+                    if (currentLevel == 1 && mouseOverButton(level2Button, mouseX, mouseY)) {
+                        SDL_Log("Level 2 button clicked!");
+                        return 2; // Go to Level 2
+                    }
+                    else if (currentLevel == 2 && mouseOverButton(level1Button, mouseX, mouseY)) {
+                        SDL_Log("Level 1 button clicked!");
+                        return 3; // Go to Level 1
+                    }
+                }
             }
-            else {          //if paused menu
-                if (mouseOverButton(resumeButton, mouseX, mouseY))      //toggle resume button 
-                    return 1; 
+            else {
+                // Regular pause menu (not victory or game over)
+                if (mouseOverButton(resumeButton, mouseX, mouseY)) {
+                    SDL_Log("Resume button clicked!");
+                    return 1; // Resume game
+                }
             }
-        }
-        else {          //else means start menu
-            if (mouseOverButton(playButton, mouseX, mouseY))        //toggle play button
-                return 1; 
-        }
 
-        if (mouseOverButton(quitButton, mouseX, mouseY))        //toggle quit button everytime for the second one
-            return 2; 
+            // Quit button (always checked in pause menus)
+            if (mouseOverButton(quitButton, mouseX, mouseY)) {
+                SDL_Log("Quit button clicked!");
+                return 4;
+            }
+        }
+        else {
+            // Start menu (not paused)
+            if (mouseOverButton(playButton, mouseX, mouseY)) {
+                SDL_Log("Play button clicked!");
+                return 1; // Start game
+            }
+
+            if (mouseOverButton(quitButton, mouseX, mouseY)) {
+                SDL_Log("Quit button clicked!");
+                return 4;
+            }
+        }
     }
-    return 0; 
+    return 0;
 }
 
-void Menu::update(float mouseX, float mouseY) {         //updates mostly for hovered buttons and change of texture
+void Menu::update(float mouseX, float mouseY) {
     playButton.isHovered = false;
     resumeButton.isHovered = false;
     replayButton.isHovered = false;
+    level1Button.isHovered = false;
+    level2Button.isHovered = false;
     quitButton.isHovered = false;
 
     if (isPauseMenu) {
-        if (isVictoryMenu || isGameOverMenu) 
-            replayButton.isHovered = mouseOverButton(replayButton, mouseX, mouseY);     //hovered texture for replay button
-        else 
-            resumeButton.isHovered = mouseOverButton(resumeButton, mouseX, mouseY);     //hovered texture for resume button
+        if (isVictoryMenu || isGameOverMenu) {
+            // Victory or Game Over menu
+            replayButton.isHovered = mouseOverButton(replayButton, mouseX, mouseY);
+            if (isVictoryMenu) {
+                // Check hover for the appropriate level button
+                if (currentLevel == 1)
+                    level2Button.isHovered = mouseOverButton(level2Button, mouseX, mouseY);
+                else if (currentLevel == 2)
+                    level1Button.isHovered = mouseOverButton(level1Button, mouseX, mouseY);
+            }
+        }
+        else {
+            // Regular pause menu
+            resumeButton.isHovered = mouseOverButton(resumeButton, mouseX, mouseY);
+        }
+
+        // Quit button (always in pause menus)
+        quitButton.isHovered = mouseOverButton(quitButton, mouseX, mouseY);
     }
-    else 
-        playButton.isHovered = mouseOverButton(playButton, mouseX, mouseY);         //hovered texture for play button
-    quitButton.isHovered = mouseOverButton(quitButton, mouseX, mouseY);         //hovered texture for guit button
+    else {
+        // Start menu
+        playButton.isHovered = mouseOverButton(playButton, mouseX, mouseY);
+        quitButton.isHovered = mouseOverButton(quitButton, mouseX, mouseY);
+    }
 }
 
 void Menu::drawText(const char* text, int x, int y, SDL_Color color) {          //draw every text needed
-    if (!font) 
+    if (!font)
         return;
 
     SDL_Surface* surface = TTF_RenderText_Blended(font, text, 0, color);
@@ -255,12 +334,12 @@ void Menu::drawText(const char* text, int x, int y, SDL_Color color) {          
 void Menu::drawButton(const Button& button) {           //draws evey button for the menu
     SDL_Texture* currentTexture = button.isHovered && button.hoverTexture ? button.hoverTexture : button.texture;
 
-    if (currentTexture) 
+    if (currentTexture)
         SDL_RenderTexture(renderer, currentTexture, nullptr, &button.rect);
     else {
-        if (button.isHovered) 
+        if (button.isHovered)
             SDL_SetRenderDrawColor(renderer, button.hoverColor.r, button.hoverColor.g, button.hoverColor.b, button.hoverColor.a);
-        else 
+        else
             SDL_SetRenderDrawColor(renderer, button.color.r, button.color.g, button.color.b, button.color.a);
         SDL_RenderFillRect(renderer, &button.rect);
 
@@ -315,7 +394,7 @@ void Menu::draw() {         //draws the menu
         }
     }
     else {
-       
+
         if (titleTexture) {
             SDL_FRect titleRect;
             titleRect.w = 256.0f;
@@ -340,8 +419,16 @@ void Menu::draw() {         //draws the menu
     }
 
     if (isPauseMenu) {
-        if (isVictoryMenu || isGameOverMenu)
+        if (isVictoryMenu || isGameOverMenu) {
             drawButton(replayButton);
+            if (isVictoryMenu) {
+                // Draw the appropriate level button based on which level was won
+                if (currentLevel == 1)
+                    drawButton(level2Button);  // Won Level 1, show Level 2 button
+                else if (currentLevel == 2)
+                    drawButton(level1Button);  // Won Level 2, show Level 1 button
+            }
+        }
         else
             drawButton(resumeButton);
     }
@@ -349,4 +436,9 @@ void Menu::draw() {         //draws the menu
         drawButton(playButton);
 
     drawButton(quitButton);
+}
+
+void Menu::setCurrentLevel(int level) {
+    currentLevel = level;
+    updateButtonPositions();
 }

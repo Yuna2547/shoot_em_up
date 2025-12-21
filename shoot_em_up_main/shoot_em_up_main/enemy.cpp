@@ -29,7 +29,7 @@ Enemy::Enemy(float x, float start_y, float w, float h, float speed, EnemyType ty
 }
 
 bool Enemy::isOffScreen(float screen_height) const {        //check if enemy is off screen
-    return rect.y > screen_height; 
+    return rect.y > screen_height;
 }
 
 Enemy::~Enemy() {
@@ -66,11 +66,11 @@ Enemy& Enemy::operator=(Enemy&& other) noexcept { //transfers all data from a te
 }
 
 EnemyType Enemy::parseEnemyType(const std::string& typeStr) {       //converts a string into an enemy type
-    if (typeStr == "tomato") 
+    if (typeStr == "tomato")
         return EnemyType::tomato;
-    if (typeStr == "broccoli") 
+    if (typeStr == "broccoli")
         return EnemyType::broccoli;
-    if (typeStr == "carrot") 
+    if (typeStr == "carrot")
         return EnemyType::carrot;
     return EnemyType();
 }
@@ -78,9 +78,9 @@ EnemyType Enemy::parseEnemyType(const std::string& typeStr) {       //converts a
 void Enemy::setHorizontalBounds(int minX, int maxX) {       //defines the limits 
     min_x = minX;
     max_x = maxX;
-    if (rect.x < minX) 
+    if (rect.x < minX)
         rect.x = static_cast<float>(min_x);
-    if (rect.x + rect.w > maxX) 
+    if (rect.x + rect.w > maxX)
         rect.x = static_cast<float>(max_x - rect.w);
 }
 
@@ -92,14 +92,14 @@ void Enemy::setHorizontalMovement(bool enabled, float speed, int minX, int maxX)
 }
 
 void Enemy::update(float dt) {      //update for movement
-    if (!isAlive()) 
-        return; 
+    if (!isAlive())
+        return;
     rect.y += speed * dt;
 
     if (horizontal) {
-        if (move_right) 
+        if (move_right)
             rect.x += hspeed * dt;
-        else            
+        else
             rect.x -= hspeed * dt;
 
         if (rect.x <= min_x) {
@@ -115,8 +115,8 @@ void Enemy::update(float dt) {      //update for movement
 }
 
 void Enemy::draw(SDL_Renderer* renderer) const {        //draw every enemy still alive
-    if (!isAlive()) 
-        return; 
+    if (!isAlive())
+        return;
 
     if (sprite && sprite->IsValid()) {
         SDL_FRect dstRect = rect;
@@ -143,11 +143,11 @@ void Enemy::draw(SDL_Renderer* renderer) const {        //draw every enemy still
 
 void Enemy::takeDamage(int amount) {
     health -= amount;
-    if (health < 0) 
+    if (health < 0)
         health = 0;
 }
 
-bool Enemy::loadEnemiesFromFile(const char* filename) const{        //take the parameters written in file
+bool Enemy::loadEnemiesFromFile(const char* filename) const {        //take the parameters written in file
     std::ifstream File(filename);
     std::string lineFromFile;
 
@@ -173,67 +173,83 @@ const SDL_FRect& Enemy::getRect() const {
 
 
 EnemyManager::EnemyManager()
-    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr) {
+    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr), enemy_file("setUpEnemy.txt") {
 }
 
-void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h) {     //set up enemies from text file
-    if (!renderer || play_width <= 0) 
+void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h, const char* filename) {     //set up enemies from text file
+    if (!renderer || play_width <= 0)
         return;
 
     this->renderer = renderer;
     this->play_area_x = play_x;
     this->play_area_width = play_width;
     this->screen_height = screen_h;
-    enemies.clear(); 
+    enemies.clear();
+
+    // store filename for future reset calls
+    if (filename)
+        this->enemy_file = filename;
 
     auto addEnemy = [&](float rel_x, float start_y, float w, float h, float speed, EnemyType type) {
-            
-            float world_x = play_x + rel_x;
-            enemies.emplace_back(world_x, start_y, w, h, speed, type, renderer);
-            Enemy& e = enemies.back();
-            if (type == EnemyType::tomato)
-                e.setHorizontalMovement(true, 120.0f, play_x, play_x + play_width);
-    };
-    
-    std::ifstream myfile("setUpEnemy.txt");
 
+        float world_x = play_x + rel_x;
+        enemies.emplace_back(world_x, start_y, w, h, speed, type, renderer);
+        Enemy& e = enemies.back();
+        if (type == EnemyType::tomato)
+            e.setHorizontalMovement(true, 120.0f, play_x, play_x + play_width);
+        };
+
+    std::ifstream myfile(this->enemy_file);
     std::string currentLine;
     if (myfile.is_open()) {
         while (myfile.good()) {     //gets each line to take the parameters
-
+            // read 6 lines per enemy; skip empty lines
             std::getline(myfile, currentLine);
-            if (currentLine.empty())        //check if no space seen
+            if (currentLine.empty())
                 continue;
-            float relX = std::stof(currentLine);
-            std::getline(myfile, currentLine);
-            float start_y = std::stof(currentLine);
-            std::getline(myfile, currentLine);
-            float w = std::stof(currentLine);
-            std::getline(myfile, currentLine);
-            float h = std::stof(currentLine);
-            std::getline(myfile, currentLine);
-            float speed = std::stof(currentLine);
-            std::getline(myfile, currentLine);
-            EnemyType enemy = Enemy::parseEnemyType(currentLine);
-            addEnemy(relX, start_y, w, h, speed, enemy);
+            try {
+                float relX = std::stof(currentLine);
 
-            
+                std::getline(myfile, currentLine);
+                float start_y = std::stof(currentLine);
+
+                std::getline(myfile, currentLine);
+                float w = std::stof(currentLine);
+
+                std::getline(myfile, currentLine);
+                float h = std::stof(currentLine);
+
+                std::getline(myfile, currentLine);
+                float speed = std::stof(currentLine);
+
+                std::getline(myfile, currentLine);
+                EnemyType enemy = Enemy::parseEnemyType(currentLine);
+
+                addEnemy(relX, start_y, w, h, speed, enemy);
+            }
+            catch (...) {
+                // malformed line: break out to avoid infinite loop
+                break;
+            }
         }
-
     }
+    else {
+        SDL_Log("Failed to open enemy setup file: %s", this->enemy_file.c_str());
+    }
+
     next_enemy_index = enemies.size();
     all_spawned = true;
     spawn_timer = 0.5f;
 }
 
-void EnemyManager::update(float dt) {       
+void EnemyManager::update(float dt) {
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].update(dt);
     }
 }
 
 void EnemyManager::draw() {
-    if (!renderer) 
+    if (!renderer)
         return;
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
         enemies[i].draw(renderer);
@@ -243,16 +259,16 @@ void EnemyManager::draw() {
 
 
 void EnemyManager::reset() {        //reset positions
-    if (renderer) 
-        setupEnemies(renderer, play_area_x, play_area_width, screen_height);
+    if (renderer)
+        setupEnemies(renderer, play_area_x, play_area_width, screen_height, enemy_file.c_str());
 }
 
 
 bool EnemyManager::allDestroyed() const {       //check if all destoryed
     if (!all_spawned)
-        return false; 
+        return false;
     for (const auto& enemy : enemies) {
-        if (enemy.isAlive() && !enemy.isOffScreen(screen_height)) 
+        if (enemy.isAlive() && !enemy.isOffScreen(screen_height))
             return false;
     }
     return true;
@@ -263,16 +279,16 @@ void EnemyManager::setBulletManager(EnemyBulletManager* manager) {
 }
 
 void EnemyManager::shootFromRandomEnemy() {     //unable the shoot from random enemies
-    if (!bullet_manager) 
+    if (!bullet_manager)
         return;
 
     std::vector<Enemy*> alive_enemies;
     for (size_t i = 0; i < next_enemy_index && i < enemies.size(); i++) {
-        if (enemies[i].isAlive() && enemies[i].rect.y >= 0) 
+        if (enemies[i].isAlive() && enemies[i].rect.y >= 0)
             alive_enemies.push_back(&enemies[i]);
     }
 
-    if (alive_enemies.empty()) 
+    if (alive_enemies.empty())
         return;
 
     int random_index = rand() % alive_enemies.size();
@@ -285,7 +301,7 @@ void EnemyManager::shootFromRandomEnemy() {     //unable the shoot from random e
 }
 
 
- 
+
 std::vector<Enemy>& EnemyManager::getEnemies() {
     return enemies;
 }

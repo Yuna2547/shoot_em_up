@@ -7,8 +7,9 @@
 #include "menu.h"
 #include "gamestate.h"
 #include <SDL3_image/SDL_image.h>
+#include <string>
 
-class Game{
+class Game {
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
@@ -26,9 +27,14 @@ private:
 	Menu* gameMenu;
 	float initialPlayerX;
 	float initialPlayerY;
-	
+
 	bool running;
 	Uint64 lastTime;
+
+	// level support
+	int currentLevel;
+	std::string getLevelFilename(int level) const;
+	void loadLevel(int level);
 
 	bool initSDL() const;
 	bool createWindow();
@@ -61,4 +67,3 @@ public:
 	void run();
 
 };
-
