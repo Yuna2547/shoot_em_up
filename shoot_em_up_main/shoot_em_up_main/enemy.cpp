@@ -3,21 +3,12 @@
 #include <fstream>
 #include <string>
 
-Enemy::Enemy(float x, float start_y, float w, float h, float Speed, EnemyType Type, SDL_Renderer* renderer) {    //parameters
+Enemy::Enemy(float x, float start_y, float w, float h, float Speed, EnemyType Type, SDL_Renderer* renderer) 
+    : speed(Speed), type(Type), health(10), max_health(10), hspeed(0.0f), min_x(0), max_x(0), sprite(nullptr), horizontal(false), move_right(true), has_collided(false){    //parameters
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
-    rect.h = h;speed = Speed;
-	type = Type;
-	health = 10;
-	max_health = 10;
-    hspeed = 0.0f;
-    min_x = 0;
-    max_x = 0;
-	sprite = nullptr;
-	horizontal = false;
-    move_right = true;
-    has_collided = false;
+    rect.h = h;
 
     const char* sprite_path = nullptr;
     switch (type) {         //define each type of enemies
@@ -182,6 +173,7 @@ const SDL_FRect& Enemy::getRect() const {
 
 EnemyManager::EnemyManager()
     : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr), enemy_file("setUpEnemy.txt") {
+
 }
 
 void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h, const char* filename) {     //set up enemies from text file
@@ -205,7 +197,7 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
         Enemy& e = enemies.back();
         if (type == EnemyType::tomato)
             e.setHorizontalMovement(true, 120.0f, play_x, play_x + play_width);
-        };
+    };
 
     std::ifstream myfile(this->enemy_file);
     std::string currentLine;
@@ -215,34 +207,28 @@ void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_wid
             std::getline(myfile, currentLine);
             if (currentLine.empty())
                 continue;
-            try {
-                float relX = std::stof(currentLine);
 
-                std::getline(myfile, currentLine);
-                float start_y = std::stof(currentLine);
+            float relX = std::stof(currentLine);
 
-                std::getline(myfile, currentLine);
-                float w = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float start_y = std::stof(currentLine);
 
-                std::getline(myfile, currentLine);
-                float h = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float w = std::stof(currentLine);
 
-                std::getline(myfile, currentLine);
-                float speed = std::stof(currentLine);
+            std::getline(myfile, currentLine);
+            float h = std::stof(currentLine);
 
-                std::getline(myfile, currentLine);
-                EnemyType enemy = Enemy::parseEnemyType(currentLine);
+            std::getline(myfile, currentLine);
+            float speed = std::stof(currentLine);
 
-                addEnemy(relX, start_y, w, h, speed, enemy);
-            }
-            catch (...) {
-                // malformed line: break out to avoid infinite loop
-                break;
-            }
+            std::getline(myfile, currentLine);
+            EnemyType enemy = Enemy::parseEnemyType(currentLine);
+
+            addEnemy(relX, start_y, w, h, speed, enemy);
+                
+            
         }
-    }
-    else {
-        SDL_Log("Failed to open enemy setup file: %s", this->enemy_file.c_str());
     }
 
     next_enemy_index = enemies.size();

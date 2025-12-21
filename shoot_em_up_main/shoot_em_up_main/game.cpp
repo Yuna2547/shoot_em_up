@@ -24,7 +24,7 @@ bool Game::initialize() {       //initialisation of the window
 
 bool Game::initSDL() const {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        SDL_Log("Error SDL_Init: ", SDL_GetError());
+        printf("Error SDL_Init");
         return false;
     }
     return true;
@@ -33,7 +33,7 @@ bool Game::initSDL() const {
 bool Game::createWindow() {         //creation of the window following the parameters
     window = SDL_CreateWindow("Shoot 'Em Up", 800, 600, SDL_WINDOW_FULLSCREEN);
     if (!window) {
-        SDL_Log("Error creating window: ", SDL_GetError());
+        printf("Error creating window");
         SDL_Quit();
         return false;
     }
@@ -44,7 +44,7 @@ bool Game::createWindow() {         //creation of the window following the param
 bool Game::createRenderer() {        //renderers created
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
-        SDL_Log("Error creating renderer: ", SDL_GetError());
+        printf("Error creating renderer");
         SDL_DestroyWindow(window);
         SDL_Quit();
         return false;
@@ -55,7 +55,6 @@ bool Game::createRenderer() {        //renderers created
 void Game::calculatePlayArea() {    //calculation of the area where you can play
     playAreaWidth = static_cast<int>(screenWidth * 0.35f);      //define the limits
     playAreaX = (screenWidth - playAreaWidth) / 2;
-    SDL_Log("Screen: ", screenWidth, " x ", screenHeight, ", Play area: x = ", playAreaX, "width = ", playAreaWidth);
 }
 
 bool Game::loadResources() {        //load the ressources needed for the background
@@ -64,10 +63,10 @@ bool Game::loadResources() {        //load the ressources needed for the backgro
         bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
         SDL_DestroySurface(bgSurface);
         if (!bgTexture)
-            SDL_Log("Warning: could not create background texture: ", SDL_GetError());
+            printf("Warning: could not create background texture");
     }
     else
-        SDL_Log("Warning: could not load background image: ", SDL_GetError());
+        printf("Warning: could not load background image");
     return true;
 }
 
@@ -170,40 +169,26 @@ void Game::handleEvents() {
 
         if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver()) {       //anything but menu start
             int menuResult = gameMenu->handleEvents(event);
-            // Debug log every menu result so we can trace clicks and states
-            if (menuResult != 0) {
-                SDL_Log("MenuResult=%d currentLevel=%d paused=%d victory=%d gameover=%d",
-                    menuResult,
-                    currentLevel,
-                    gameState->isPaused() ? 1 : 0,
-                    gameState->isVictory() ? 1 : 0,
-                    gameState->isGameOver() ? 1 : 0);
-            }
+            
             if (menuResult == 1) {
-                // Replay button clicked
                 if (gameState->isVictory() || gameState->isGameOver()) {
-                    resetGame();  // Replay current level
+                    resetGame(); 
                 }
                 else {
-                    gameState->setPaused(false);  // Resume from pause
+                    gameState->setPaused(false); 
                 }
             }
             else if (menuResult == 2) {
-                // Level 2 button clicked (only appears when winning Level 1)
                 if (gameState->isVictory() && currentLevel == 1) {
-                    SDL_Log("Level 2 button clicked - loading Level 2");
                     loadLevel(2);
                 }
             }
             else if (menuResult == 3) {
-                // Level 1 button clicked (only appears when winning Level 2)
                 if (gameState->isVictory() && currentLevel == 2) {
-                    SDL_Log("Level 1 button clicked - loading Level 1");
                     loadLevel(1);
                 }
             }
             else if (menuResult == 4) {
-                // Quit button clicked
                 running = false;
             }
         }
@@ -365,7 +350,6 @@ void Game::handleVictory() {         //sets the victory menu
     gameMenu->setPauseMode(true);
     gameMenu->setVictoryMode(true);
 
-    // Tell the menu which level was just won
     gameMenu->setCurrentLevel(currentLevel);
 }
 
@@ -375,62 +359,38 @@ void Game::handlePause() const {     //set the paused menu
 }
 
 
-
 void Game::cleanup() {              //cleans every pointers and destroy any texture
-    if (player) {
-        delete player;
-        player = nullptr;
-    }
+    delete player;
+    player = nullptr;
+    delete bulletManager;
+    bulletManager = nullptr;
+    delete enemyBulletManager;
+    enemyBulletManager = nullptr;
+    delete enemyManager;
+    enemyManager = nullptr;
+    delete gameState;
+    gameState = nullptr;
+    delete gameMenu;
+    gameMenu = nullptr;
 
-    if (bulletManager) {
-        delete bulletManager;
-        bulletManager = nullptr;
-    }
-
-    if (enemyBulletManager) {
-        delete enemyBulletManager;
-        enemyBulletManager = nullptr;
-    }
-
-    if (enemyManager) {
-        delete enemyManager;
-        enemyManager = nullptr;
-    }
-
-    if (gameState) {
-        delete gameState;
-        gameState = nullptr;
-    }
-
-    if (gameMenu) {
-        delete gameMenu;
-        gameMenu = nullptr;
-    }
-
-    if (bgTexture) {
-        SDL_DestroyTexture(bgTexture);
-        bgTexture = nullptr;
-    }
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
-    }
-    if (window) {
-        SDL_DestroyWindow(window);
-        window = nullptr;
-    }
+    SDL_DestroyTexture(bgTexture);
+    bgTexture = nullptr;
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
 
     SDL_Quit();
 }
 
-// NEW: helper to map level -> filename
 std::string Game::getLevelFilename(int level) const {
-    if (level == 1) return "setUpEnemy.txt";
-    if (level == 2) return "setUpEnemy2.txt";
+    if (level == 1) 
+        return "setUpEnemy.txt";
+    if (level == 2) 
+        return "setUpEnemy2.txt";
     return "setUpEnemy.txt";
 }
 
-// NEW: load a given level number (1 or 2). This resets bullet managers and loads the enemy file.
 void Game::loadLevel(int level) {
     // clamp level between 1 and 2
     if (level < 1) level = 1;

@@ -1,6 +1,7 @@
 #include "Sprite.h"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL.h>
+#include <iostream>
 
 Sprite::Sprite(SDL_Renderer* renderer, const char* path)        //parameters, check if texture loaded
     : texture(nullptr), width(0), height(0){
@@ -9,13 +10,13 @@ Sprite::Sprite(SDL_Renderer* renderer, const char* path)        //parameters, ch
 
     SDL_Surface* surface = IMG_Load(path);
     if (!surface) {
-        SDL_Log("Error loading image from ",path, " : ",  SDL_GetError());
+        printf("Error loading image");
         return;
     }
 
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
-        SDL_Log("Error creating texture from ",path, " : ",  SDL_GetError());
+        printf("Error creating texture");
         SDL_DestroySurface(surface);
         return;
     }
