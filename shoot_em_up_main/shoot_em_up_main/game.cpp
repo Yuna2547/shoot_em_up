@@ -119,6 +119,11 @@ bool Game::showMenu() {     //creation of the menu when the game is started (sta
             }
             else if (menuResult == 2)
                 inMenu = false;
+
+            else if (menuResult == 4) {    
+                inMenu = false;
+                startGame = false;
+            }
         }
         gameMenu->draw();
 
