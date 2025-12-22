@@ -397,37 +397,38 @@ void Game::drawScore() const{
 }
 
 
-void Game::cleanup() {              //cleans every pointers and destroy any texture
-    delete player;
-    player = nullptr;
-    delete bulletManager;
-    bulletManager = nullptr;
-    delete enemyBulletManager;
-    enemyBulletManager = nullptr;
-    delete enemyManager;
-    enemyManager = nullptr;
-    delete gameState;
-    gameState = nullptr;
-    delete gameMenu;
-    gameMenu = nullptr;
 
-    SDL_DestroyTexture(bgTexture);
-    bgTexture = nullptr;
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
-    SDL_DestroyWindow(window);
-    window = nullptr;
 
-    SDL_Quit();
+bool Game::loadLevelOrder(){
+    level1List.clear(); 
+    level2List.clear();
+    std::ifstream file("levelOrder.txt");
+    std::string currentLine;
+
+    while (file.good()) {
+        std::getline(file, currentLine);
+        if (currentLine.empty())
+            continue;
+
+        std::string level1, level2; 
+        std::getline(file, level1); 
+        std::getline(file, level2); 
+        level1List.push_back(level1); 
+        level2List.push_back(level2);
+    }
+    return false;
 }
 
 std::string Game::getLevelFilename(int level) const {
-    if (level == 1) 
-        return "setUpEnemy.txt";
-    if (level == 2) 
-        return "setUpEnemy2.txt";
-    return "setUpEnemy.txt";
+    if (level == 1 && !level1List.empty())
+        return level1List[0];
+
+    if (level == 2 && !level2List.empty())
+        return level2List[0];
+
+    return "";
 }
+
 
 void Game::loadLevel(int level) {
     // clamp level between 1 and 2
@@ -457,4 +458,29 @@ void Game::loadLevel(int level) {
     gameMenu->setPauseMode(false);
     gameMenu->setVictoryMode(false);
     gameMenu->setGameOverMode(false);
+}
+
+
+void Game::cleanup() {              //cleans every pointers and destroy any texture
+    delete player;
+    player = nullptr;
+    delete bulletManager;
+    bulletManager = nullptr;
+    delete enemyBulletManager;
+    enemyBulletManager = nullptr;
+    delete enemyManager;
+    enemyManager = nullptr;
+    delete gameState;
+    gameState = nullptr;
+    delete gameMenu;
+    gameMenu = nullptr;
+
+    SDL_DestroyTexture(bgTexture);
+    bgTexture = nullptr;
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
+
+    SDL_Quit();
 }

@@ -8,6 +8,7 @@
 #include "gamestate.h"
 #include <SDL3_image/SDL_image.h>
 #include <string>
+#include <fstream>
 
 class Game {
 private:
@@ -30,9 +31,11 @@ private:
 
 	bool running;
 	Uint64 lastTime;
-
-	// level support
 	int currentLevel;
+	std::vector<std::string> level1List; 
+	std::vector<std::string> level2List;
+
+	bool loadLevelOrder();
 	std::string getLevelFilename(int level) const;
 	void loadLevel(int level);
 
