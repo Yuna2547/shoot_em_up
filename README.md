@@ -1,37 +1,19 @@
 # BURGIRL 🍔
 
 A vertical scrolling shoot 'em up game where you play as Burgirl defending against waves of evil vegetables!
-
-![Title](assets/title.png)
-
 ## 📋 Table of Contents
 - [About](#about)
-- [Game Elements](#game-elements)
 - [Controls](#controls)
 - [How to Play](#how-to-play)
 - [Credits](#credits)
 
 ## 🎮 About
 
-BURGIRL is a classic arcade-style shoot 'em up game built with SDL3. Battle through waves of vegetable enemies across multiple levels while dodging their attacks and protecting your health!
+BURGIRL is a classic arcade-style shoot 'em up game built with SDL3. You know, one of those games where vegetables are somehow the bad guys. 
+Battle through waves of vegetable enemies across two levels while dodging their attacks and trying not to lose all your health.
+It's ironic, isn't it?
+Because apparently, tomatoes, broccoli, and carrots have declared war on burgers, and it's your job to stop them.
 
-## 🥗 Game Elements
-
-### Enemies
-
-<img src="assets/tomato.png" width="50"> **Tomato** - Moves horizontally while descending
-
-<img src="assets/brocolie.png" width="50"> **Broccoli** - Descends vertically
-
-<img src="assets/carrot.png" width="50"> **Carrot** - Descends vertically and shoots back!
-
-### Player
-
-<img src="assets/player.png" width="50"> **Burgirl** - Our brave hero with 10HP
-
-### Level Buttons
-
-<img src="assets/level1.png" width="100"> <img src="assets/level2.png" width="100">
 
 ## 🎯 Controls
 
@@ -46,10 +28,10 @@ BURGIRL is a classic arcade-style shoot 'em up game built with SDL3. Battle thro
 ## 🕹️ How to Play
 
 1. **Launch the game** - Click the Play button in the main menu
-2. **Move and Shoot** - Use WASD/Arrows to move, SPACE to shoot
+2. **Move and Shoot** - Use WASD/ZQSD/Arrows to move, SPACE to shoot
 3. **Avoid damage** - Dodge enemy bullets and collisions
 4. **Destroy enemies** - Each enemy destroyed gives you +10 points
-5. **Complete levels** - Destroy all enemies to win!
+5. **Complete levels** - Destroy all enemies to win, or just survive until they're all gone off-screen
 
 ### Health System
 - Start with **10 HP**
@@ -66,8 +48,3 @@ BURGIRL is a classic arcade-style shoot 'em up game built with SDL3. Battle thro
 **Developed by:**
 - Chloé Lima-Grandguillotte
 - Line Harispe
-
-
----
-
-*Defend the burger kingdom from the vegetable invasion!* 🍔⚔️🥗
