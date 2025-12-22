@@ -87,6 +87,7 @@ void Game::setupGameObjects() {     //set up of the objects needed throughout th
     player->setScreenBounds(playAreaWidth, screenHeight);
     player->setOffsetX(playAreaX);
     // load current level file (currentLevel defaults to 1)
+    loadLevelOrder();
     loadLevel(currentLevel);
     enemyManager->setBulletManager(enemyBulletManager);
 
@@ -400,34 +401,32 @@ void Game::drawScore() const{
 
 
 bool Game::loadLevelOrder(){
-    level1List.clear(); 
-    level2List.clear();
+    levelOrder.clear();
     std::ifstream file("levelOrder.txt");
     std::string currentLine;
 
-    while (file.good()) {
-        std::getline(file, currentLine);
+    while (std::getline(file, currentLine)) {
         if (currentLine.empty())
             continue;
 
         std::string level1, level2; 
         std::getline(file, level1); 
         std::getline(file, level2); 
-        level1List.push_back(level1); 
-        level2List.push_back(level2);
+        levelOrder.push_back(level1);
+        levelOrder.push_back(level2);
     }
-    return false;
+    return true;
 }
 
 std::string Game::getLevelFilename(int level) const {
-    if (level == 1 && !level1List.empty())
-        return level1List[0];
+    int index = level - 1;
 
-    if (level == 2 && !level2List.empty())
-        return level2List[0];
+    if (index >= 0 && index < levelOrder.size())
+        return levelOrder[index];
 
     return "";
 }
+
 
 
 void Game::loadLevel(int level) {

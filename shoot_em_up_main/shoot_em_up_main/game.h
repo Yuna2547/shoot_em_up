@@ -32,8 +32,7 @@ private:
 	bool running;
 	Uint64 lastTime;
 	int currentLevel;
-	std::vector<std::string> level1List; 
-	std::vector<std::string> level2List;
+	std::vector<std::string> levelOrder;
 
 	bool loadLevelOrder();
 	std::string getLevelFilename(int level) const;
