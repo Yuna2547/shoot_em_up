@@ -2,7 +2,7 @@
 #include <SDL3_image/SDL_image.h>
 
 Menu::Menu(SDL_Renderer* renderer, int winWidth, int winHeight)
-    : renderer(renderer), font(nullptr), isPauseMenu(false), isVictoryMenu(false), isGameOverMenu(false), currentLevel(1), windowWidth(winWidth), windowHeight(winHeight) {
+: renderer(renderer), font(nullptr), isPauseMenu(false), isVictoryMenu(false), isGameOverMenu(false), currentLevel(1), windowWidth(winWidth), windowHeight(winHeight) {
     
     if (!TTF_Init()) {
         printf("TTF_Init failed");

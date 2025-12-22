@@ -4,7 +4,7 @@
 #include <string>
 
 Enemy::Enemy(float x, float start_y, float w, float h, float Speed, EnemyType Type, SDL_Renderer* renderer) 
-    : speed(Speed), type(Type), health(10), max_health(10), hspeed(0.0f), min_x(0), max_x(0), sprite(nullptr), horizontal(false), move_right(true), has_collided(false){    //parameters
+: speed(Speed), type(Type), health(10), max_health(10), hspeed(0.0f), min_x(0), max_x(0), sprite(nullptr), horizontal(false), move_right(true), has_collided(false){    //parameters
     rect.x = x;
     rect.y = start_y;
     rect.w = w;
@@ -37,8 +37,8 @@ Enemy::~Enemy() {
 }
 
 Enemy::Enemy(Enemy&& other) noexcept
-    : rect(other.rect), speed(other.speed), type(other.type), has_collided(other.has_collided), sprite(other.sprite), health(other.health), max_health(other.max_health),
-    horizontal(other.horizontal), hspeed(other.hspeed), min_x(other.min_x), max_x(other.max_x), move_right(other.move_right) {
+: rect(other.rect), speed(other.speed), type(other.type), has_collided(other.has_collided), sprite(other.sprite), health(other.health), max_health(other.max_health),
+horizontal(other.horizontal), hspeed(other.hspeed), min_x(other.min_x), max_x(other.max_x), move_right(other.move_right) {
     other.sprite = nullptr;    // Prevent the moved-from object from deleting the sprite
 }
 
@@ -171,9 +171,7 @@ const SDL_FRect& Enemy::getRect() const {
 
 
 
-EnemyManager::EnemyManager()
-    : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr), enemy_file("setUpEnemy.txt") {
-
+EnemyManager::EnemyManager() : spawn_timer(0.0f), next_enemy_index(0), all_spawned(false), renderer(nullptr), play_area_x(0), play_area_width(0), screen_height(0), bullet_manager(nullptr), enemy_file("setUpEnemy.txt") {
 }
 
 void EnemyManager::setupEnemies(SDL_Renderer* renderer, int play_x, int play_width, int screen_h, const char* filename) {     //set up enemies from text file

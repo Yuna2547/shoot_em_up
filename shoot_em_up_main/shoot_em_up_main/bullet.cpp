@@ -36,9 +36,8 @@ const SDL_FRect& Bullet::getRect() const {      //gets the rect of the bullet
     return rect;
 }
 
-BulletManager::BulletManager(int maxBullets, float cooldown) 
-    : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f){     //manages the bullets with cooldown{
-	bullets.resize(max_bullets);
+BulletManager::BulletManager(int maxBullets, float cooldown) : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f){     //manages the bullets with cooldown{
+    bullets.resize(max_bullets);
 }
 
 void BulletManager::update(float dt) {
@@ -150,8 +149,7 @@ const SDL_FRect& EnemyBullet::getRect() const {
 
 
 
-EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown) 
-    : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f){     //manages the cooldown and shooting system
+EnemyBulletManager::EnemyBulletManager(int maxBullets, float cooldown) : max_bullets(maxBullets), shoot_cooldown(cooldown), cooldown_timer(0.0f){     //manages the cooldown and shooting system
 	bullets.resize(max_bullets);
 }
 

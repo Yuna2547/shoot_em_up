@@ -5,7 +5,6 @@
 
 Game::Game() : window(nullptr), renderer(nullptr), bgTexture(nullptr), screenWidth(0), screenHeight(0), playAreaX(0), playAreaWidth(0), player(nullptr), bulletManager(nullptr),
 enemyBulletManager(nullptr), enemyManager(nullptr), gameState(nullptr), gameMenu(nullptr), initialPlayerX(0.0f), initialPlayerY(0.0f), running(true), lastTime(0), currentLevel(1) {
-
 }
 
 Game::~Game() {
@@ -67,6 +66,8 @@ bool Game::loadResources() {        //load the ressources needed for the backgro
     }
     else
         printf("Warning: could not load background image");
+    
+   
     return true;
 }
 
@@ -256,6 +257,8 @@ void Game::render() {       //renderers for the game
     SDL_FRect rightBar = { static_cast<float>(playAreaX + playAreaWidth), 0.0f, static_cast<float>(screenWidth - playAreaX - playAreaWidth), static_cast<float>(screenHeight) };
     SDL_RenderFillRect(renderer, &rightBar);
 
+    drawScore();
+
     if (gameState->isPaused() || gameState->isVictory() || gameState->isGameOver())     //render menu in these cases
         gameMenu->draw();
 }
@@ -272,11 +275,14 @@ void Game::checkBulletEnemyCollisions() {       //count the collision between th
         if (!bullet.active)
             continue;
         for (auto& enemy : enemyManager->getEnemies()) {
-            if (!enemy.isAlive())
+            if (!enemy.isAlive()){
                 continue;
+            }
             if (checkCollision(bullet.getRect(), enemy.getRect())) {        //the enemy is damaged 2hp if collision, and the bullet deactivate
                 enemy.takeDamage(2);
                 bullet.deactivate();
+                if (enemy.health <= 0)
+                    gameState->addScore(10);
                 break;
             }
         }
@@ -361,6 +367,33 @@ void Game::handleVictory() {         //sets the victory menu
 void Game::handlePause() const {     //set the paused menu
     gameState->setPaused(true);
     gameMenu->setPauseMode(true);
+}
+
+void Game::drawScore() const{
+    TTF_Font* scoreFont1 = TTF_OpenFont("assets/arcade.ttf", 24);
+	if (!scoreFont1){
+        printf("Couldn't load font");
+        return;
+    }
+
+    std::string scoreCount = "Score " + std::to_string(gameState->getScore());
+    SDL_Color black = { 0, 0, 0, 255 };
+    SDL_Surface* surface = TTF_RenderText_Blended(scoreFont1, scoreCount.c_str(), 0, black);
+
+    if (surface) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture) {
+            SDL_FRect scoreRect;
+            scoreRect.x = playAreaX + 10.0f;
+            scoreRect.y = 10.0f;
+            scoreRect.w = static_cast<float>(surface->w);
+            scoreRect.h = static_cast<float>(surface->h);
+
+            SDL_RenderTexture(renderer, texture, nullptr, &scoreRect);
+            SDL_DestroyTexture(texture);
+        }
+        SDL_DestroySurface(surface);
+    }
 }
 
 

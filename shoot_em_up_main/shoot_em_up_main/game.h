@@ -41,20 +41,24 @@ private:
 	bool createRenderer();
 	void calculatePlayArea();
 	bool loadResources();
+
 	void setupGameObjects();
 	void handleEvents();
 	void update(float dt);
 	void render();
+
 	void handleCollisions();
 	void checkBulletEnemyCollisions();
 	void checkPlayerEnemyCollisions();
 	void checkPlayerBulletCollisions();
 	void checkOffscreenEnemies();
 	bool checkCollision(const SDL_FRect& a, const SDL_FRect& b) const;
+
 	void resetGame();
 	void handleGameOver();
 	void handleVictory();
 	void handlePause() const;
+	void drawScore() const;
 
 	void cleanup();
 

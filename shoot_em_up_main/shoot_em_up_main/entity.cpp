@@ -2,13 +2,12 @@
 #include "Sprite.h"
 #include "enemy.h"
 
-Entity::Entity()        //parameters
-    : speed(0), screen_width(0), screen_height(0), sprite(nullptr), health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0){
+Entity::Entity() : speed(0), screen_width(0), screen_height(0), sprite(nullptr), health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0){
     rect.x = rect.y = rect.w = rect.h = 0.0f;
 }
 
 Entity::Entity(float x, float y, float w, float h, float speed_, SDL_Renderer* renderer)
-    : speed(speed_), screen_width(800), screen_height(600), sprite(nullptr), health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0){
+: speed(speed_), screen_width(800), screen_height(600), sprite(nullptr), health(10), max_health(10), invulnerable_timer(0.0f), offset_x(0){
     rect.x = x;
     rect.y = y;
     rect.w = w;

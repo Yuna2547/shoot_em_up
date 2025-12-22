@@ -3,8 +3,7 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 
-Sprite::Sprite(SDL_Renderer* renderer, const char* path)        //parameters, check if texture loaded
-    : texture(nullptr), width(0), height(0){
+Sprite::Sprite(SDL_Renderer* renderer, const char* path) : texture(nullptr), width(0), height(0){ //parameters, check if texture loaded
     if (!renderer || !path) 
         return;
 
